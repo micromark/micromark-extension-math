@@ -146,9 +146,9 @@ abide by its terms.
 
 <!-- Definitions -->
 
-[build-badge]: https://img.shields.io/travis/micromark/micromark-extension-math.svg
+[build-badge]: https://github.com/micromark/micromark-extension-math/workflows/main/badge.svg
 
-[build]: https://travis-ci.org/micromark/micromark-extension-math
+[build]: https://github.com/micromark/micromark-extension-math/actions
 
 [coverage-badge]: https://img.shields.io/codecov/c/github/micromark/micromark-extension-math.svg
 
