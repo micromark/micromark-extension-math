@@ -1,8 +1,7 @@
-var test = require('tape')
-var micromark = require('micromark')
-var katex = require('katex')
-var syntax = require('.')
-var html = require('./html.js')
+import test from 'tape'
+import katex from 'katex'
+import {micromark} from 'micromark'
+import {math as syntax, mathHtml as html} from '../index.js'
 
 test('markdown -> html (micromark)', function (t) {
   t.equal(

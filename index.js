@@ -1,1 +1,2 @@
-module.exports = require('./lib/syntax.js')
+export {math} from './lib/syntax.js'
+export {mathHtml} from './lib/html.js'
