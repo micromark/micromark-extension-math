@@ -3,7 +3,7 @@ import katex from 'katex'
 import {micromark} from 'micromark'
 import {math as syntax, mathHtml as html} from '../index.js'
 
-test('markdown -> html (micromark)', function (t) {
+test('markdown -> html (micromark)', (t) => {
   t.equal(
     micromark('a \\$b$', {extensions: [syntax], htmlExtensions: [html()]}),
     '<p>a $b$</p>',
@@ -11,7 +11,7 @@ test('markdown -> html (micromark)', function (t) {
   )
 
   t.throws(
-    function () {
+    () => {
       micromark('a $b\\$', {extensions: [syntax], htmlExtensions: [html()]})
     },
     /KaTeX parse error: Unexpected character: '\\' at position 2/,
@@ -27,7 +27,7 @@ test('markdown -> html (micromark)', function (t) {
   )
 
   t.throws(
-    function () {
+    () => {
       micromark('a $$ $ $$', {extensions: [syntax], htmlExtensions: [html()]})
     },
     /KaTeX parse error: Can't use function '\$' in math mode at position 1/,
@@ -191,7 +191,7 @@ test('markdown -> html (micromark)', function (t) {
   )
 
   t.throws(
-    function () {
+    () => {
       micromark('$$\na\n$$ b', {
         extensions: [syntax],
         htmlExtensions: [html()]
