@@ -2,7 +2,7 @@ var test = require('tape')
 var micromark = require('micromark')
 var katex = require('katex')
 var syntax = require('.')
-var html = require('./html')
+var html = require('./html.js')
 
 test('markdown -> html (micromark)', function (t) {
   t.equal(
