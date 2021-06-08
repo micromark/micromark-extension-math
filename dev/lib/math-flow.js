@@ -1,3 +1,9 @@
+/**
+ * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ * @typedef {import('micromark-util-types').State} State
+ */
+
 import assert from 'assert'
 import {factorySpace} from 'micromark-factory-space'
 import {markdownLineEnding} from 'micromark-util-character'
@@ -5,11 +11,13 @@ import {codes} from 'micromark-util-symbol/codes.js'
 import {constants} from 'micromark-util-symbol/constants.js'
 import {types} from 'micromark-util-symbol/types.js'
 
+/** @type {Construct} */
 export const mathFlow = {
   tokenize: tokenizeMathFenced,
   concrete: true
 }
 
+/** @type {Tokenizer} */
 function tokenizeMathFenced(effects, ok, nok) {
   const self = this
   const tail = self.events[self.events.length - 1]
@@ -21,6 +29,7 @@ function tokenizeMathFenced(effects, ok, nok) {
 
   return start
 
+  /** @type {State} */
   function start(code) {
     assert(code === codes.dollarSign, 'expected `$`')
     effects.enter('mathFlow')
@@ -29,6 +38,7 @@ function tokenizeMathFenced(effects, ok, nok) {
     return sequenceOpen(code)
   }
 
+  /** @type {State} */
   function sequenceOpen(code) {
     if (code === codes.dollarSign) {
       effects.consume(code)
@@ -42,6 +52,7 @@ function tokenizeMathFenced(effects, ok, nok) {
       : factorySpace(effects, metaOpen, types.whitespace)(code)
   }
 
+  /** @type {State} */
   function metaOpen(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
       return openAfter(code)
@@ -52,6 +63,7 @@ function tokenizeMathFenced(effects, ok, nok) {
     return meta(code)
   }
 
+  /** @type {State} */
   function meta(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit(types.chunkString)
@@ -64,11 +76,13 @@ function tokenizeMathFenced(effects, ok, nok) {
     return meta
   }
 
+  /** @type {State} */
   function openAfter(code) {
     effects.exit('mathFlowFence')
     return self.interrupt ? ok(code) : content(code)
   }
 
+  /** @type {State} */
   function content(code) {
     if (code === codes.eof) {
       return after(code)
@@ -91,6 +105,7 @@ function tokenizeMathFenced(effects, ok, nok) {
     return contentContinue(code)
   }
 
+  /** @type {State} */
   function contentContinue(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit('mathFlowValue')
@@ -101,11 +116,13 @@ function tokenizeMathFenced(effects, ok, nok) {
     return contentContinue
   }
 
+  /** @type {State} */
   function after(code) {
     effects.exit('mathFlow')
     return ok(code)
   }
 
+  /** @type {Tokenizer} */
   function tokenizeClosingFence(effects, ok, nok) {
     let size = 0
 
@@ -116,12 +133,14 @@ function tokenizeMathFenced(effects, ok, nok) {
       constants.tabSize
     )
 
+    /** @type {State} */
     function closingPrefixAfter(code) {
       effects.enter('mathFlowFence')
       effects.enter('mathFlowFenceSequence')
       return closingSequence(code)
     }
 
+    /** @type {State} */
     function closingSequence(code) {
       if (code === codes.dollarSign) {
         effects.consume(code)
@@ -134,6 +153,7 @@ function tokenizeMathFenced(effects, ok, nok) {
       return factorySpace(effects, closingSequenceEnd, types.whitespace)(code)
     }
 
+    /** @type {State} */
     function closingSequenceEnd(code) {
       if (code === codes.eof || markdownLineEnding(code)) {
         effects.exit('mathFlowFence')

@@ -1,5 +1,18 @@
+/**
+ * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
+ * @typedef {import('katex').KatexOptions} KatexOptions
+ */
+
+/**
+ * @typedef {Omit<KatexOptions, 'displayMode'>} Options
+ */
+
 import katex from 'katex'
 
+/**
+ * @param {Options} [options]
+ * @returns {HtmlExtension}
+ */
 export function mathHtml(options) {
   return {
     enter: {
@@ -49,6 +62,11 @@ export function mathHtml(options) {
     }
   }
 
+  /**
+   * @param {string} value
+   * @param {boolean} displayMode
+   * @returns {string}
+   */
   function math(value, displayMode) {
     return katex.renderToString(
       value,

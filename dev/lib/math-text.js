@@ -1,18 +1,31 @@
+/**
+ * @typedef {import('micromark-util-types').Construct} Construct
+ * @typedef {import('micromark-util-types').Resolver} Resolver
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
+ * @typedef {import('micromark-util-types').Previous} Previous
+ * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').Token} Token
+ */
+
 import assert from 'assert'
 import {markdownLineEnding} from 'micromark-util-character'
 import {codes} from 'micromark-util-symbol/codes.js'
 import {types} from 'micromark-util-symbol/types.js'
 
+/** @type {Construct} */
 export const mathText = {
   tokenize: tokenizeMathText,
   resolve: resolveMathText,
   previous
 }
 
+/** @type {Resolver} */
 function resolveMathText(events) {
   let tailExitIndex = events.length - 4
   let headEnterIndex = 3
+  /** @type {number} */
   let index
+  /** @type {number|undefined} */
   let enter
 
   // If we start and end with an EOL or a space.
@@ -69,6 +82,7 @@ function resolveMathText(events) {
   return events
 }
 
+/** @type {Previous} */
 function previous(code) {
   // If there is a previous code, there will always be a tail.
   return (
@@ -77,14 +91,18 @@ function previous(code) {
   )
 }
 
+/** @type {Tokenizer} */
 function tokenizeMathText(effects, ok, nok) {
   const self = this
   let sizeOpen = 0
+  /** @type {number} */
   let size
+  /** @type {Token} */
   let token
 
   return start
 
+  /** @type {State} */
   function start(code) {
     assert(code === codes.dollarSign, 'expected `$`')
     assert(previous.call(self, self.previous), 'expected correct previous')
@@ -93,6 +111,7 @@ function tokenizeMathText(effects, ok, nok) {
     return openingSequence(code)
   }
 
+  /** @type {State} */
   function openingSequence(code) {
     if (code === codes.dollarSign) {
       effects.consume(code)
@@ -104,6 +123,7 @@ function tokenizeMathText(effects, ok, nok) {
     return gap(code)
   }
 
+  /** @type {State} */
   function gap(code) {
     if (code === codes.eof) {
       return nok(code)
@@ -138,6 +158,7 @@ function tokenizeMathText(effects, ok, nok) {
   }
 
   // In math.
+  /** @type {State} */
   function data(code) {
     if (
       code === codes.eof ||
@@ -154,6 +175,7 @@ function tokenizeMathText(effects, ok, nok) {
   }
 
   // Closing fence.
+  /** @type {State} */
   function closingSequence(code) {
     // More.
     if (code === codes.dollarSign) {
