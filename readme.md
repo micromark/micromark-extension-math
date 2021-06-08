@@ -13,11 +13,14 @@
 As there is no spec for math in markdown, this extension stays as close to
 code in text and fenced code in flow in CommonMark, but using dollar signs.
 
-This package provides the low-level modules for integrating with the micromark
-tokenizer and the micromark HTML compiler.
+## When to use this
 
-You probably shouldn’t use the HTML parts of this package directly, but instead
-use [`mdast-util-math`][mdast-util-math] with **[mdast][]**.
+If you’re using [`micromark`][micromark] or
+[`mdast-util-from-markdown`][from-markdown], use this package.
+Alternatively, if you’re using **[remark][]**, use
+[`remark-math`][remark-math].
+
+## Syntax
 
 ```markdown
 Math (text) can start with one or more dollar signs, so long as they match:
@@ -40,7 +43,7 @@ You can hide some stuff in the meta of the opening fence (but no dollars):
 $$hidden information
 $$
 
-Math which doesn’t have a closing fence, still works, like fenced code:
+Math that doesn’t have a closing fence, still works, like fenced code:
 
 > $$
 > this is
@@ -76,26 +79,23 @@ $$
 And our script, `example.js`, looks as follows:
 
 ```js
-var fs = require('fs')
-var micromark = require('micromark')
-var math = require('micromark-extension-math')
-var mathHtml = require('micromark-extension-math/html')
+import fs from 'fs'
+import {micromark} from 'micromark'
+import {math, mathHtml} from 'micromark-extension-math'
 
-var doc = fs.readFileSync('example.md')
-
-var result = micromark(doc, {
+const output = micromark(fs.readFileSync('example.md'), {
   extensions: [math],
   htmlExtensions: [mathHtml()]
 })
 
-console.log(result)
+console.log(output)
 ```
 
 Now, running `node example` yields (abbreviated):
 
 ```html
-<p>Lift(<span class="math math-inline"><span class="katex">…</span></span>) can be determined by Lift Coefficient (<span class="math math-inline"><span class="katex">…</span></span>) like the following equation.</p>
-<div class="math math-display"><span class="katex-display"><span class="katex">…</span></span></div>
+<p>Lift(<span class="math math-inline"><span class="katex">…</span></span>) like the following equation.</p>
+<div class="math math-display"><span class="katex-display"><span class="katex">…</span></div>
 ```
 
 ## API
@@ -103,16 +103,18 @@ Now, running `node example` yields (abbreviated):
 This package exports the following identifiers: `math`, `mathHtml`.
 There is no default export.
 
+The export map supports the endorsed
+[`development` condition](https://nodejs.org/api/packages.html#packages_resolving_user_conditions).
+Run `node --conditions development module.js` to get instrumented dev code.
+Without this condition, production code is loaded.
+
 ### `math`
 
 ### `mathHtml(options?)`
 
-Support math.
-The export of `syntax` is an extension for the micromark parser (to tokenize
-math in text and flow; can be passed in `extensions`).
-The export of `html` is a function that can be called with options and returns
-an extension for the default HTML compiler (to compile math with [KaTeX][]; can
-be passed in `htmlExtensions`).
+An an extension for micromark to parse math (can be passed in `extensions`) and
+a function that can be called with options to get an extension to compile them
+to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
 
 ##### `options`
 
@@ -124,6 +126,8 @@ Passed to [`katex.renderToString`][katex-options].
 
 *   [`remarkjs/remark`][remark]
     — markdown processor powered by plugins
+*   [`remarkjs/remark-math`][remark-math]
+    — remark plugin using this to support math
 *   [`micromark/micromark`][micromark]
     — the smallest commonmark-compliant markdown parser that exists
 *   [`syntax-tree/mdast-util-math`][mdast-util-math]
@@ -195,7 +199,7 @@ abide by its terms.
 
 [remark]: https://github.com/remarkjs/remark
 
-[mdast]: https://github.com/syntax-tree/mdast
+[remark-math]: https://github.com/remarkjs/remark-math
 
 [mdast-util-math]: https://github.com/syntax-tree/mdast-util-math
 
