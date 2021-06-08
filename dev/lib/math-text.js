@@ -1,3 +1,8 @@
+import assert from 'assert'
+import {markdownLineEnding} from 'micromark-util-character'
+import {codes} from 'micromark-util-symbol/codes.js'
+import {types} from 'micromark-util-symbol/types.js'
+
 export const mathText = {
   tokenize: tokenizeMathText,
   resolve: resolveMathText,
@@ -12,9 +17,9 @@ function resolveMathText(events) {
 
   // If we start and end with an EOL or a space.
   if (
-    (events[headEnterIndex][1].type === 'lineEnding' ||
+    (events[headEnterIndex][1].type === types.lineEnding ||
       events[headEnterIndex][1].type === 'space') &&
-    (events[tailExitIndex][1].type === 'lineEnding' ||
+    (events[tailExitIndex][1].type === types.lineEnding ||
       events[tailExitIndex][1].type === 'space')
   ) {
     index = headEnterIndex
@@ -38,12 +43,15 @@ function resolveMathText(events) {
 
   while (++index <= tailExitIndex) {
     if (enter === undefined) {
-      if (index !== tailExitIndex && events[index][1].type !== 'lineEnding') {
+      if (
+        index !== tailExitIndex &&
+        events[index][1].type !== types.lineEnding
+      ) {
         enter = index
       }
     } else if (
       index === tailExitIndex ||
-      events[index][1].type === 'lineEnding'
+      events[index][1].type === types.lineEnding
     ) {
       events[enter][1].type = 'mathTextData'
 
@@ -64,8 +72,8 @@ function resolveMathText(events) {
 function previous(code) {
   // If there is a previous code, there will always be a tail.
   return (
-    code !== 36 ||
-    this.events[this.events.length - 1][1].type === 'characterEscape'
+    code !== codes.dollarSign ||
+    this.events[this.events.length - 1][1].type === types.characterEscape
   )
 }
 
@@ -78,21 +86,15 @@ function tokenizeMathText(effects, ok, nok) {
   return start
 
   function start(code) {
-    /* istanbul ignore if - handled by mm */
-    if (code !== 36) throw new Error('expected `$`')
-
-    /* istanbul ignore if - handled by mm */
-    if (!previous.call(self, self.previous)) {
-      throw new Error('expected correct previous')
-    }
-
+    assert(code === codes.dollarSign, 'expected `$`')
+    assert(previous.call(self, self.previous), 'expected correct previous')
     effects.enter('mathText')
     effects.enter('mathTextSequence')
     return openingSequence(code)
   }
 
   function openingSequence(code) {
-    if (code === 36) {
+    if (code === codes.dollarSign) {
       effects.consume(code)
       sizeOpen++
       return openingSequence
@@ -103,31 +105,30 @@ function tokenizeMathText(effects, ok, nok) {
   }
 
   function gap(code) {
-    // EOF.
-    if (code === null) {
+    if (code === codes.eof) {
       return nok(code)
     }
 
     // Closing fence?
     // Could also be data.
-    if (code === 36) {
+    if (code === codes.dollarSign) {
       token = effects.enter('mathTextSequence')
       size = 0
       return closingSequence(code)
     }
 
     // Tabs don’t work, and virtual spaces don’t make sense.
-    if (code === 32) {
+    if (code === codes.space) {
       effects.enter('space')
       effects.consume(code)
       effects.exit('space')
       return gap
     }
 
-    if (code === -5 || code === -4 || code === -3) {
-      effects.enter('lineEnding')
+    if (markdownLineEnding(code)) {
+      effects.enter(types.lineEnding)
       effects.consume(code)
-      effects.exit('lineEnding')
+      effects.exit(types.lineEnding)
       return gap
     }
 
@@ -136,15 +137,13 @@ function tokenizeMathText(effects, ok, nok) {
     return data(code)
   }
 
-  // In code.
+  // In math.
   function data(code) {
     if (
-      code === null ||
-      code === 32 ||
-      code === 36 ||
-      code === -5 ||
-      code === -4 ||
-      code === -3
+      code === codes.eof ||
+      code === codes.space ||
+      code === codes.dollarSign ||
+      markdownLineEnding(code)
     ) {
       effects.exit('mathTextData')
       return gap(code)
@@ -157,7 +156,7 @@ function tokenizeMathText(effects, ok, nok) {
   // Closing fence.
   function closingSequence(code) {
     // More.
-    if (code === 36) {
+    if (code === codes.dollarSign) {
       effects.consume(code)
       size++
       return closingSequence

@@ -1,4 +1,9 @@
+import assert from 'assert'
 import {factorySpace} from 'micromark-factory-space'
+import {markdownLineEnding} from 'micromark-util-character'
+import {codes} from 'micromark-util-symbol/codes.js'
+import {constants} from 'micromark-util-symbol/constants.js'
+import {types} from 'micromark-util-symbol/types.js'
 
 export const mathFlow = {
   tokenize: tokenizeMathFenced,
@@ -9,7 +14,7 @@ function tokenizeMathFenced(effects, ok, nok) {
   const self = this
   const tail = self.events[self.events.length - 1]
   const initialSize =
-    tail && tail[1].type === 'linePrefix'
+    tail && tail[1].type === types.linePrefix
       ? tail[2].sliceSerialize(tail[1], true).length
       : 0
   let sizeOpen = 0
@@ -17,9 +22,7 @@ function tokenizeMathFenced(effects, ok, nok) {
   return start
 
   function start(code) {
-    /* istanbul ignore if - handled by mm */
-    if (code !== 36) throw new Error('expected `$`')
-
+    assert(code === codes.dollarSign, 'expected `$`')
     effects.enter('mathFlow')
     effects.enter('mathFlowFence')
     effects.enter('mathFlowFenceSequence')
@@ -27,7 +30,7 @@ function tokenizeMathFenced(effects, ok, nok) {
   }
 
   function sequenceOpen(code) {
-    if (code === 36) {
+    if (code === codes.dollarSign) {
       effects.consume(code)
       sizeOpen++
       return sequenceOpen
@@ -36,27 +39,27 @@ function tokenizeMathFenced(effects, ok, nok) {
     effects.exit('mathFlowFenceSequence')
     return sizeOpen < 2
       ? nok(code)
-      : factorySpace(effects, metaOpen, 'whitespace')(code)
+      : factorySpace(effects, metaOpen, types.whitespace)(code)
   }
 
   function metaOpen(code) {
-    if (code === null || code === -5 || code === -4 || code === -3) {
+    if (code === codes.eof || markdownLineEnding(code)) {
       return openAfter(code)
     }
 
     effects.enter('mathFlowFenceMeta')
-    effects.enter('chunkString', {contentType: 'string'})
+    effects.enter(types.chunkString, {contentType: constants.contentTypeString})
     return meta(code)
   }
 
   function meta(code) {
-    if (code === null || code === -5 || code === -4 || code === -3) {
-      effects.exit('chunkString')
+    if (code === codes.eof || markdownLineEnding(code)) {
+      effects.exit(types.chunkString)
       effects.exit('mathFlowFenceMeta')
       return openAfter(code)
     }
 
-    if (code === 36) return nok(code)
+    if (code === codes.dollarSign) return nok(code)
     effects.consume(code)
     return meta
   }
@@ -67,19 +70,19 @@ function tokenizeMathFenced(effects, ok, nok) {
   }
 
   function content(code) {
-    if (code === null) {
+    if (code === codes.eof) {
       return after(code)
     }
 
-    if (code === -5 || code === -4 || code === -3) {
-      effects.enter('lineEnding')
+    if (markdownLineEnding(code)) {
+      effects.enter(types.lineEnding)
       effects.consume(code)
-      effects.exit('lineEnding')
+      effects.exit(types.lineEnding)
       return effects.attempt(
         {tokenize: tokenizeClosingFence, partial: true},
         after,
         initialSize
-          ? factorySpace(effects, content, 'linePrefix', initialSize + 1)
+          ? factorySpace(effects, content, types.linePrefix, initialSize + 1)
           : content
       )
     }
@@ -89,7 +92,7 @@ function tokenizeMathFenced(effects, ok, nok) {
   }
 
   function contentContinue(code) {
-    if (code === null || code === -5 || code === -4 || code === -3) {
+    if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit('mathFlowValue')
       return content(code)
     }
@@ -106,7 +109,12 @@ function tokenizeMathFenced(effects, ok, nok) {
   function tokenizeClosingFence(effects, ok, nok) {
     let size = 0
 
-    return factorySpace(effects, closingPrefixAfter, 'linePrefix', 4)
+    return factorySpace(
+      effects,
+      closingPrefixAfter,
+      types.linePrefix,
+      constants.tabSize
+    )
 
     function closingPrefixAfter(code) {
       effects.enter('mathFlowFence')
@@ -115,7 +123,7 @@ function tokenizeMathFenced(effects, ok, nok) {
     }
 
     function closingSequence(code) {
-      if (code === 36) {
+      if (code === codes.dollarSign) {
         effects.consume(code)
         size++
         return closingSequence
@@ -123,11 +131,11 @@ function tokenizeMathFenced(effects, ok, nok) {
 
       if (size < sizeOpen) return nok(code)
       effects.exit('mathFlowFenceSequence')
-      return factorySpace(effects, closingSequenceEnd, 'whitespace')(code)
+      return factorySpace(effects, closingSequenceEnd, types.whitespace)(code)
     }
 
     function closingSequenceEnd(code) {
-      if (code === null || code === -5 || code === -4 || code === -3) {
+      if (code === codes.eof || markdownLineEnding(code)) {
         effects.exit('mathFlowFence')
         return ok(code)
       }

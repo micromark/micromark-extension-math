@@ -1,7 +1,7 @@
 import test from 'tape'
 import katex from 'katex'
 import {micromark} from 'micromark'
-import {math as syntax, mathHtml as html} from '../index.js'
+import {math as syntax, mathHtml as html} from '../dev/index.js'
 
 test('markdown -> html (micromark)', (t) => {
   t.equal(
