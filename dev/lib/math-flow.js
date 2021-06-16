@@ -17,6 +17,9 @@ export const mathFlow = {
   concrete: true
 }
 
+/** @type {Construct} */
+const nonLazyLine = {tokenize: tokenizeNonLazyLine, partial: true}
+
 /** @type {Tokenizer} */
 function tokenizeMathFenced(effects, ok, nok) {
   const self = this
@@ -79,26 +82,32 @@ function tokenizeMathFenced(effects, ok, nok) {
   /** @type {State} */
   function openAfter(code) {
     effects.exit('mathFlowFence')
-    return self.interrupt ? ok(code) : content(code)
+    return self.interrupt ? ok(code) : contentStart(code)
   }
 
   /** @type {State} */
-  function content(code) {
+  function contentStart(code) {
     if (code === codes.eof) {
       return after(code)
     }
 
     if (markdownLineEnding(code)) {
-      effects.enter(types.lineEnding)
-      effects.consume(code)
-      effects.exit(types.lineEnding)
       return effects.attempt(
-        {tokenize: tokenizeClosingFence, partial: true},
-        after,
-        initialSize
-          ? factorySpace(effects, content, types.linePrefix, initialSize + 1)
-          : content
-      )
+        nonLazyLine,
+        effects.attempt(
+          {tokenize: tokenizeClosingFence, partial: true},
+          after,
+          initialSize
+            ? factorySpace(
+                effects,
+                contentStart,
+                types.linePrefix,
+                initialSize + 1
+              )
+            : contentStart
+        ),
+        after
+      )(code)
     }
 
     effects.enter('mathFlowValue')
@@ -109,7 +118,7 @@ function tokenizeMathFenced(effects, ok, nok) {
   function contentContinue(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit('mathFlowValue')
-      return content(code)
+      return contentStart(code)
     }
 
     effects.consume(code)
@@ -162,5 +171,26 @@ function tokenizeMathFenced(effects, ok, nok) {
 
       return nok(code)
     }
+  }
+}
+
+/** @type {Tokenizer} */
+function tokenizeNonLazyLine(effects, ok, nok) {
+  const self = this
+
+  return start
+
+  /** @type {State} */
+  function start(code) {
+    assert(markdownLineEnding(code), 'expected eol')
+    effects.enter(types.lineEnding)
+    effects.consume(code)
+    effects.exit(types.lineEnding)
+    return lineStart
+  }
+
+  /** @type {State} */
+  function lineStart(code) {
+    return self.parser.lazy[self.now().line] ? nok(code) : ok(code)
   }
 }

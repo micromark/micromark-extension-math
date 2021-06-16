@@ -281,5 +281,42 @@ test('markdown -> html (micromark)', (t) => {
     'should support options'
   )
 
+  t.equal(
+    micromark('> $$\na\n$$', {
+      extensions: [syntax],
+      htmlExtensions: [html()]
+    }),
+    '<blockquote>\n<div class="math math-display">' +
+      katex.renderToString('', {displayMode: true}) +
+      '</div>\n</blockquote>\n<p>a</p>\n<div class="math math-display">' +
+      katex.renderToString('', {displayMode: true}) +
+      '</div>',
+    'should not support laziness (1)'
+  )
+
+  t.equal(
+    micromark('> $$\n> a\n$$', {
+      extensions: [syntax],
+      htmlExtensions: [html()]
+    }),
+    '<blockquote>\n<div class="math math-display">' +
+      katex.renderToString('a', {displayMode: true}) +
+      '</div>\n</blockquote>\n<div class="math math-display">' +
+      katex.renderToString('', {displayMode: true}) +
+      '</div>',
+    'should not support laziness (2)'
+  )
+
+  t.equal(
+    micromark('a\n> $$', {
+      extensions: [syntax],
+      htmlExtensions: [html()]
+    }),
+    '<p>a</p>\n<blockquote>\n<div class="math math-display">' +
+      katex.renderToString('', {displayMode: true}) +
+      '</div>\n</blockquote>',
+    'should not support laziness (3)'
+  )
+
   t.end()
 })
