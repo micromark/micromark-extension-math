@@ -112,7 +112,7 @@ Without this condition, production code is loaded.
 
 ### `mathHtml(options?)`
 
-An an extension for micromark to parse math (can be passed in `extensions`) and
+An extension for micromark to parse math (can be passed in `extensions`) and
 a function that can be called with options to get an extension to compile them
 to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
 
