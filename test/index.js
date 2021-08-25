@@ -5,21 +5,21 @@ import {math as syntax, mathHtml as html} from '../dev/index.js'
 
 test('markdown -> html (micromark)', (t) => {
   t.equal(
-    micromark('a \\$b$', {extensions: [syntax], htmlExtensions: [html()]}),
+    micromark('a \\$b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a $b$</p>',
     'should support an escaped dollar sign which would otherwise open math'
   )
 
   t.throws(
     () => {
-      micromark('a $b\\$', {extensions: [syntax], htmlExtensions: [html()]})
+      micromark('a $b\\$', {extensions: [syntax()], htmlExtensions: [html()]})
     },
     /KaTeX parse error: Unexpected character: '\\' at position 2/,
     'should not support escaped dollar signs in math (text)'
   )
 
   t.equal(
-    micromark('a \\$$b$', {extensions: [syntax], htmlExtensions: [html()]}),
+    micromark('a \\$$b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a $<span class="math math-inline">' +
       katex.renderToString('b') +
       '</span></p>',
@@ -28,7 +28,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.throws(
     () => {
-      micromark('a $$ $ $$', {extensions: [syntax], htmlExtensions: [html()]})
+      micromark('a $$ $ $$', {extensions: [syntax()], htmlExtensions: [html()]})
     },
     /KaTeX parse error: Can't use function '\$' in math mode at position 1/,
     'should support a single dollar in math (text) w/ padding and two dollar signs'
@@ -36,7 +36,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $$\\raisebox{0.25em}{$\\frac a b$}$$ b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
@@ -47,7 +47,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $$ \\$ $$ b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
@@ -58,7 +58,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $$\na\\$ $$ b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
@@ -68,7 +68,7 @@ test('markdown -> html (micromark)', (t) => {
   )
 
   t.equal(
-    micromark('a $b$', {extensions: [syntax], htmlExtensions: [html()]}),
+    micromark('a $b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
       katex.renderToString('b') +
       '</span></p>',
@@ -76,7 +76,7 @@ test('markdown -> html (micromark)', (t) => {
   )
 
   t.equal(
-    micromark('a $$b$$', {extensions: [syntax], htmlExtensions: [html()]}),
+    micromark('a $$b$$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
       katex.renderToString('b') +
       '</span></p>',
@@ -84,7 +84,7 @@ test('markdown -> html (micromark)', (t) => {
   )
 
   t.equal(
-    micromark('a $$$b$$$', {extensions: [syntax], htmlExtensions: [html()]}),
+    micromark('a $$$b$$$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
       katex.renderToString('b') +
       '</span></p>',
@@ -93,7 +93,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $b\nc\rd\r\ne$ f', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
@@ -104,7 +104,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$\na\n$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p><span class="math math-inline">' +
@@ -115,7 +115,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$\na\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -126,7 +126,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$$\na\n$$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -137,7 +137,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -148,7 +148,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$\na', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -159,7 +159,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$\na\n', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -170,7 +170,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$asd &amp; \\& asd\na\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -181,7 +181,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('$$asd$asd\na\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>$$asd$asd\na</p>\n<div class="math math-display">' +
@@ -193,7 +193,7 @@ test('markdown -> html (micromark)', (t) => {
   t.throws(
     () => {
       micromark('$$\na\n$$ b', {
-        extensions: [syntax],
+        extensions: [syntax()],
         htmlExtensions: [html()]
       })
     },
@@ -202,7 +202,10 @@ test('markdown -> html (micromark)', (t) => {
   )
 
   t.equal(
-    micromark('$$\na\n$$  ', {extensions: [syntax], htmlExtensions: [html()]}),
+    micromark('$$\na\n$$  ', {
+      extensions: [syntax()],
+      htmlExtensions: [html()]
+    }),
     '<div class="math math-display">' +
       katex.renderToString('a', {displayMode: true}) +
       '</div>',
@@ -211,7 +214,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('  $$\n\ta\n  b\n c\nd\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
@@ -222,7 +225,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('> $$\n> a\n> $$\n> b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<blockquote>\n' +
@@ -236,7 +239,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('* $$\n  a\n  $$\n  b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<ul>\n' +
@@ -252,7 +255,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $\\sum_{\\substack{0<i<m\\\\0<j<n}}$ b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
@@ -263,7 +266,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $\\text{a \\"{a} c}$ b', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
@@ -274,7 +277,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a $$ $ $$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html({throwOnError: false})]
     }),
     '<p>a <span class="math math-inline"><span class="katex-error" title="ParseError: KaTeX parse error: Can&#x27;t use function &#x27;$&#x27; in math mode at position 1: $̲" style="color:#cc0000">$</span></span></p>',
@@ -283,7 +286,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('> $$\na\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<blockquote>\n<div class="math math-display">' +
@@ -296,7 +299,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('> $$\n> a\n$$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<blockquote>\n<div class="math math-display">' +
@@ -309,7 +312,7 @@ test('markdown -> html (micromark)', (t) => {
 
   t.equal(
     micromark('a\n> $$', {
-      extensions: [syntax],
+      extensions: [syntax()],
       htmlExtensions: [html()]
     }),
     '<p>a</p>\n<blockquote>\n<div class="math math-display">' +

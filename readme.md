@@ -84,7 +84,7 @@ import {micromark} from 'micromark'
 import {math, mathHtml} from 'micromark-extension-math'
 
 const output = micromark(fs.readFileSync('example.md'), {
-  extensions: [math],
+  extensions: [math()],
   htmlExtensions: [mathHtml()]
 })
 
@@ -108,13 +108,13 @@ The export map supports the endorsed
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
 
-### `math`
+### `math()`
 
 ### `mathHtml(options?)`
 
-An extension for micromark to parse math (can be passed in `extensions`) and
-a function that can be called with options to get an extension to compile them
-to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
+A function to create an extension for micromark to parse math (can be passed in
+`extensions`) and a function that can be called with options to get an extension
+to compile them to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
 
 ##### `options`
 
