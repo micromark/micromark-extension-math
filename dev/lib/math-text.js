@@ -5,6 +5,13 @@
  * @typedef {import('micromark-util-types').Previous} Previous
  * @typedef {import('micromark-util-types').State} State
  * @typedef {import('micromark-util-types').Token} Token
+ *
+ * @typedef Options
+ * @property {boolean} [singleDollarTextMath=true]
+ *   Whether to support math (text) with a single dollar (`boolean`, default:
+ *   `true`).
+ *   Single dollars work in Pandoc and many other places, but often interfere
+ *   with “normal” dollars in text.
  */
 
 import assert from 'assert'
@@ -12,11 +19,129 @@ import {markdownLineEnding} from 'micromark-util-character'
 import {codes} from 'micromark-util-symbol/codes.js'
 import {types} from 'micromark-util-symbol/types.js'
 
-/** @type {Construct} */
-export const mathText = {
-  tokenize: tokenizeMathText,
-  resolve: resolveMathText,
-  previous
+/**
+ * @param {Options} [options]
+ * @returns {Construct}
+ */
+export function mathText(options = {}) {
+  let single = options.singleDollarTextMath
+
+  if (single === null || single === undefined) {
+    single = true
+  }
+
+  return {
+    tokenize: tokenizeMathText,
+    resolve: resolveMathText,
+    previous
+  }
+
+  /** @type {Tokenizer} */
+  function tokenizeMathText(effects, ok, nok) {
+    const self = this
+    let sizeOpen = 0
+    /** @type {number} */
+    let size
+    /** @type {Token} */
+    let token
+
+    return start
+
+    /** @type {State} */
+    function start(code) {
+      assert(code === codes.dollarSign, 'expected `$`')
+      assert(previous.call(self, self.previous), 'expected correct previous')
+      effects.enter('mathText')
+      effects.enter('mathTextSequence')
+      return openingSequence(code)
+    }
+
+    /** @type {State} */
+    function openingSequence(code) {
+      if (code === codes.dollarSign) {
+        effects.consume(code)
+        sizeOpen++
+        return openingSequence
+      }
+
+      if (sizeOpen < 2 && !single) return nok(code)
+      effects.exit('mathTextSequence')
+      return gap(code)
+    }
+
+    /** @type {State} */
+    function gap(code) {
+      if (code === codes.eof) {
+        return nok(code)
+      }
+
+      // Closing fence?
+      // Could also be data.
+      if (code === codes.dollarSign) {
+        token = effects.enter('mathTextSequence')
+        size = 0
+        return closingSequence(code)
+      }
+
+      // Tabs don’t work, and virtual spaces don’t make sense.
+      if (code === codes.space) {
+        effects.enter('space')
+        effects.consume(code)
+        effects.exit('space')
+        return gap
+      }
+
+      if (markdownLineEnding(code)) {
+        effects.enter(types.lineEnding)
+        effects.consume(code)
+        effects.exit(types.lineEnding)
+        return gap
+      }
+
+      // Data.
+      effects.enter('mathTextData')
+      return data(code)
+    }
+
+    // In math.
+    /** @type {State} */
+    function data(code) {
+      if (
+        code === codes.eof ||
+        code === codes.space ||
+        code === codes.dollarSign ||
+        markdownLineEnding(code)
+      ) {
+        effects.exit('mathTextData')
+        return gap(code)
+      }
+
+      effects.consume(code)
+      return data
+    }
+
+    // Closing fence.
+    /** @type {State} */
+    function closingSequence(code) {
+      // More.
+      if (code === codes.dollarSign) {
+        effects.consume(code)
+        size++
+        return closingSequence
+      }
+
+      // Done!
+      if (size === sizeOpen) {
+        effects.exit('mathTextSequence')
+        effects.exit('mathText')
+        return ok(code)
+      }
+
+      // More or less accents: mark as data.
+      token.type = 'mathTextData'
+      return data(code)
+    }
+  }
 }
 
 /** @type {Resolver} */
@@ -89,110 +214,4 @@ function previous(code) {
     code !== codes.dollarSign ||
     this.events[this.events.length - 1][1].type === types.characterEscape
   )
-}
-
-/** @type {Tokenizer} */
-function tokenizeMathText(effects, ok, nok) {
-  const self = this
-  let sizeOpen = 0
-  /** @type {number} */
-  let size
-  /** @type {Token} */
-  let token
-
-  return start
-
-  /** @type {State} */
-  function start(code) {
-    assert(code === codes.dollarSign, 'expected `$`')
-    assert(previous.call(self, self.previous), 'expected correct previous')
-    effects.enter('mathText')
-    effects.enter('mathTextSequence')
-    return openingSequence(code)
-  }
-
-  /** @type {State} */
-  function openingSequence(code) {
-    if (code === codes.dollarSign) {
-      effects.consume(code)
-      sizeOpen++
-      return openingSequence
-    }
-
-    effects.exit('mathTextSequence')
-    return gap(code)
-  }
-
-  /** @type {State} */
-  function gap(code) {
-    if (code === codes.eof) {
-      return nok(code)
-    }
-
-    // Closing fence?
-    // Could also be data.
-    if (code === codes.dollarSign) {
-      token = effects.enter('mathTextSequence')
-      size = 0
-      return closingSequence(code)
-    }
-
-    // Tabs don’t work, and virtual spaces don’t make sense.
-    if (code === codes.space) {
-      effects.enter('space')
-      effects.consume(code)
-      effects.exit('space')
-      return gap
-    }
-
-    if (markdownLineEnding(code)) {
-      effects.enter(types.lineEnding)
-      effects.consume(code)
-      effects.exit(types.lineEnding)
-      return gap
-    }
-
-    // Data.
-    effects.enter('mathTextData')
-    return data(code)
-  }
-
-  // In math.
-  /** @type {State} */
-  function data(code) {
-    if (
-      code === codes.eof ||
-      code === codes.space ||
-      code === codes.dollarSign ||
-      markdownLineEnding(code)
-    ) {
-      effects.exit('mathTextData')
-      return gap(code)
-    }
-
-    effects.consume(code)
-    return data
-  }
-
-  // Closing fence.
-  /** @type {State} */
-  function closingSequence(code) {
-    // More.
-    if (code === codes.dollarSign) {
-      effects.consume(code)
-      size++
-      return closingSequence
-    }
-
-    // Done!
-    if (size === sizeOpen) {
-      effects.exit('mathTextSequence')
-      effects.exit('mathText')
-      return ok(code)
-    }
-
-    // More or less accents: mark as data.
-    token.type = 'mathTextData'
-    return data(code)
-  }
 }

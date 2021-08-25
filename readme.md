@@ -108,15 +108,24 @@ The export map supports the endorsed
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
 
-### `math()`
+### `math(options?)`
 
-### `mathHtml(options?)`
+### `mathHtml(htmlOptions?)`
 
 A function to create an extension for micromark to parse math (can be passed in
-`extensions`) and a function that can be called with options to get an extension
-to compile them to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
+`extensions`) and a function that can be called to get an extension to compile
+them to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
 
 ##### `options`
+
+###### `options.singleDollarTextMath`
+
+Whether to support math (text) with a single dollar (`boolean`, default:
+`true`).
+Single dollars work in Pandoc and many other places, but often interfere with
+“normal” dollars in text.
+
+##### `htmlOptions`
 
 Passed to [`katex.renderToString`][katex-options].
 `displayMode` is overwritten by this plugin, to `false` for math in text, and

@@ -5,6 +5,34 @@ import {math as syntax, mathHtml as html} from '../dev/index.js'
 
 test('markdown -> html (micromark)', (t) => {
   t.equal(
+    micromark('$a$, $$b$$, $$$c$$$', {
+      extensions: [syntax()],
+      htmlExtensions: [html()]
+    }),
+    '<p><span class="math math-inline">' +
+      katex.renderToString('a') +
+      '</span>, <span class="math math-inline">' +
+      katex.renderToString('b') +
+      '</span>, <span class="math math-inline">' +
+      katex.renderToString('c') +
+      '</span></p>',
+    'should support one, two, or more dollars by default'
+  )
+
+  t.equal(
+    micromark('$a$, $$b$$, $$$c$$$', {
+      extensions: [syntax({singleDollarTextMath: false})],
+      htmlExtensions: [html()]
+    }),
+    '<p>$a$, <span class="math math-inline">' +
+      katex.renderToString('b') +
+      '</span>, <span class="math math-inline">' +
+      katex.renderToString('c') +
+      '</span></p>',
+    'should support two or more dollars w/ `singleDollarTextMath: false`, but not one'
+  )
+
+  t.equal(
     micromark('a \\$b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a $b$</p>',
     'should support an escaped dollar sign which would otherwise open math'
