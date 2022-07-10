@@ -34,8 +34,8 @@
 
 This package contains extensions that add support for math.
 
-As there is no spec for math in markdown, this extension follows how fenced code
-works in Commonmark, but uses dollars.
+As there is no spec for math in markdown, this extension follows how code
+(fenced and text) works in Commonmark, but uses dollars.
 
 ## When to use this
 
