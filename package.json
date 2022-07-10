@@ -38,8 +38,8 @@
     "default": "./index.js"
   },
   "dependencies": {
-    "@types/katex": "^0.11.0",
-    "katex": "^0.13.0",
+    "@types/katex": "^0.14.0",
+    "katex": "^0.16.0",
     "micromark-factory-space": "^1.0.0",
     "micromark-util-character": "^1.0.0",
     "micromark-util-symbol": "^1.0.0",
