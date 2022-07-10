@@ -182,8 +182,6 @@ Math forms with, roughly, the following BNF:
 ; Restriction: the number of markers in the closing fence sequence must be
 ; equal to or greater than the number of markers in the opening fence
 ; sequence.
-; Restriction: the marker in the closing fence sequence must match the
-; marker in the opening fence sequence
 math_flow ::= fence_open *( eol *line ) [ eol fence_close ]
 ; Restriction: the number of markers in the closing sequence must equal the
 ; number of markers in the opening sequence.
