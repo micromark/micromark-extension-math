@@ -8,55 +8,48 @@
 [![Backers][backers-badge]][collective]
 [![Chat][chat-badge]][chat]
 
-**[micromark][]** extension to support math (`$C_L$`).
+[micromark][] extension to support math (`$C_L$`).
 
-As there is no spec for math in markdown, this extension stays as close to
-code in text and fenced code in flow in CommonMark, but using dollar signs.
+## Contents
+
+*   [What is this?](#what-is-this)
+*   [When to use this](#when-to-use-this)
+*   [Install](#install)
+*   [Use](#use)
+*   [API](#api)
+    *   [`math(options?)`](#mathoptions)
+    *   [`mathHtml(htmlOptions?)`](#mathhtmlhtmloptions)
+*   [Authoring](#authoring)
+*   [HTML](#html)
+*   [CSS](#css)
+*   [Syntax](#syntax)
+*   [Types](#types)
+*   [Compatibility](#compatibility)
+*   [Security](#security)
+*   [Related](#related)
+*   [Contribute](#contribute)
+*   [License](#license)
+
+## What is this?
+
+This package contains extensions that add support for math.
+
+As there is no spec for math in markdown, this extension follows how fenced code
+works in Commonmark, but uses dollars.
 
 ## When to use this
 
-If you’re using [`micromark`][micromark] or
-[`mdast-util-from-markdown`][from-markdown], use this package.
-Alternatively, if you’re using **[remark][]**, use
-[`remark-math`][remark-math].
+These tools are all low-level.
+In many cases, you want to use [`remark-math`][plugin] with remark instead.
 
-## Syntax
-
-```markdown
-Math (text) can start with one or more dollar signs, so long as they match:
-With one: $\alpha$, two: $$\beta$$, or three: $$$\gamma$$$.
-
-This is useful, because like code, typical markdown escapes don’t work.
-For dollars inside math, use more dollars around it: $$\raisebox{0.25em}{$\frac
-a b$}$$.
-
-If the math starts and ends with a space (or EOL), those are removed: $$ \$ $$.
-
-Math (flow) starts at two or more dollars:
-
-$$
-\Delta
-$$
-
-You can hide some stuff in the meta of the opening fence (but no dollars):
-
-$$hidden information
-$$
-
-Math that doesn’t have a closing fence, still works, like fenced code:
-
-> $$
-> this is
-> all math
-
-…but at the end of their container (block quote, list item, or document), they
-are closed.
-```
+When you do want to use `micromark`, you can use this.
+When working with `mdast-util-from-markdown`, you must combine this package
+with [`mdast-util-math`][util].
 
 ## Install
 
-This package is [ESM only](https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c):
-Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
+This package is [ESM only][esm].
+In Node.js (version 12.20+, 14.14+, 16.0+, or 18.0+), install with [npm][]:
 
 [npm][]:
 
@@ -64,9 +57,23 @@ Node 12+ is needed to use it and it must be `import`ed instead of `require`d.
 npm install micromark-extension-math
 ```
 
+In Deno with [`esm.sh`][esmsh]:
+
+```js
+import {math, mathHtml} from 'https://esm.sh/micromark-extension-math@2'
+```
+
+In browsers with [`esm.sh`][esmsh]:
+
+```html
+<script type="module">
+  import {math, mathHtml} from 'https://esm.sh/micromark-extension-math@2?bundle'
+</script>
+```
+
 ## Use
 
-Say we have the following file, `example.md`:
+Say our document `example.md` contains:
 
 ```markdown
 Lift($L$) can be determined by Lift Coefficient ($C_L$) like the following equation.
@@ -76,14 +83,14 @@ L = \frac{1}{2} \rho v^2 S C_L
 $$
 ```
 
-And our script, `example.js`, looks as follows:
+…and our module `example.js` looks as follows:
 
 ```js
-import fs from 'fs'
+import fs from 'node:fs/promises'
 import {micromark} from 'micromark'
 import {math, mathHtml} from 'micromark-extension-math'
 
-const output = micromark(fs.readFileSync('example.md'), {
+const output = micromark(await fs.readFile('example.md'), {
   extensions: [math()],
   htmlExtensions: [mathHtml()]
 })
@@ -91,7 +98,7 @@ const output = micromark(fs.readFileSync('example.md'), {
 console.log(output)
 ```
 
-Now, running `node example` yields (abbreviated):
+…now running `node example.js` yields (abbreviated):
 
 ```html
 <p>Lift(<span class="math math-inline"><span class="katex">…</span></span>) like the following equation.</p>
@@ -100,23 +107,23 @@ Now, running `node example` yields (abbreviated):
 
 ## API
 
-This package exports the following identifiers: `math`, `mathHtml`.
+This package exports the identifiers `math` and `mathHtml`.
 There is no default export.
 
-The export map supports the endorsed
-[`development` condition](https://nodejs.org/api/packages.html#packages_resolving_user_conditions).
+The export map supports the endorsed [`development` condition][condition].
 Run `node --conditions development module.js` to get instrumented dev code.
 Without this condition, production code is loaded.
 
 ### `math(options?)`
 
-### `mathHtml(htmlOptions?)`
+Add support for parsing math in markdown.
 
-A function to create an extension for micromark to parse math (can be passed in
-`extensions`) and a function that can be called to get an extension to compile
-them to HTML with [KaTeX][] (can be passed in `htmlExtensions`).
+Function that can be called to get a syntax extension for micromark (passed
+in `extensions`).
 
 ##### `options`
+
+Configuration (optional).
 
 ###### `options.singleDollarTextMath`
 
@@ -125,26 +132,95 @@ Whether to support math (text) with a single dollar (`boolean`, default:
 Single dollars work in Pandoc and many other places, but often interfere with
 “normal” dollars in text.
 
+### `mathHtml(htmlOptions?)`
+
+Add support for turning math in markdown to HTML with [KaTeX][].
+
+Function that can be called to get an HTML extension for micromark (passed in
+`htmlExtensions`).
+
 ##### `htmlOptions`
+
+Configuration (optional).
 
 Passed to [`katex.renderToString`][katex-options].
 `displayMode` is overwritten by this plugin, to `false` for math in text, and
 `true` for math in flow.
+Everything else can be passed.
+
+## Authoring
+
+When authoring markdown with math, keep in mind that math doesn’t work in most
+places.
+Notably, GitHub currently has a really weird crappy regex-based thing.
+But on your own (math-heavy?) site it can be great!
+
+## HTML
+
+Math does not relate to HTML elements.
+MathML, which is sort of like SVG but for math, exists but it doesn’t work well
+and isn’t widely supported.
+Instead, this uses [KaTeX][], which generates MathML as a fallback but also
+generates a bunch of divs and spans so math look pretty.
+
+## CSS
+
+The HTML produced by KaTeX requires CSS to render correctly.
+You should use `katex.css` somewhere on the page where the math is shown to
+style it properly.
+At the time of writing, the last version is:
+
+```html
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.0/dist/katex.min.css">
+```
+
+## Syntax
+
+Math forms with, roughly, the following BNF:
+
+```bnf
+; Restriction: the number of markers in the closing fence sequence must be
+; equal to or greater than the number of markers in the opening fence
+; sequence.
+; Restriction: the marker in the closing fence sequence must match the
+; marker in the opening fence sequence
+math_flow ::= fence_open *( eol *line ) [ eol fence_close ]
+; Restriction: the number of markers in the closing sequence must equal the
+; number of markers in the opening sequence.
+math_text ::= 1*'$' 1*code 1*'$'
+
+fence_open ::= 3*'$' [ 1*space_or_tab meta ] *space_or_tab
+fence_close ::= 3*'$' *space_or_tab
+meta ::= 1*(code - eol - space_or_tab - '$') *( *space_or_tab 1*text )
+
+eol ::= '\r' | '\r\n' | '\n'
+space_or_tab ::= ' ' | '\t'
+line ::= . - eol ; any unicode code point
+```
+
+## Types
+
+This package is fully typed with [TypeScript][].
+It exports the additional types `Options` and `HtmlOptions`.
+
+## Compatibility
+
+This package is at least compatible with all maintained versions of Node.js.
+As of now, that is Node.js 12.20+, 14.14+, 16.0+, and 18.0+.
+It also works in Deno and modern browsers.
+
+## Security
+
+This package is safe assuming that you trust KaTeX.
+Any vulnerability in it could open you to a [cross-site scripting (XSS)][xss]
+attack.
 
 ## Related
 
-*   [`remarkjs/remark`][remark]
-    — markdown processor powered by plugins
-*   [`remarkjs/remark-math`][remark-math]
-    — remark plugin using this to support math
-*   [`micromark/micromark`][micromark]
-    — the smallest commonmark-compliant markdown parser that exists
-*   [`syntax-tree/mdast-util-math`][mdast-util-math]
+*   [`remarkjs/remark-math`][plugin]
+    — remark (and rehype) plugins to support math
+*   [`syntax-tree/mdast-util-math`][util]
     — mdast utility to support math
-*   [`syntax-tree/mdast-util-from-markdown`][from-markdown]
-    — mdast parser using `micromark` to create mdast from markdown
-*   [`syntax-tree/mdast-util-to-markdown`][to-markdown]
-    — mdast serializer to create markdown from mdast
 
 ## Contribute
 
@@ -190,28 +266,32 @@ abide by its terms.
 
 [npm]: https://docs.npmjs.com/cli/install
 
+[esmsh]: https://esm.sh
+
 [license]: license
 
 [author]: https://wooorm.com
 
-[contributing]: https://github.com/micromark/.github/blob/HEAD/contributing.md
+[contributing]: https://github.com/micromark/.github/blob/main/contributing.md
 
-[support]: https://github.com/micromark/.github/blob/HEAD/support.md
+[support]: https://github.com/micromark/.github/blob/main/support.md
 
-[coc]: https://github.com/micromark/.github/blob/HEAD/code-of-conduct.md
+[coc]: https://github.com/micromark/.github/blob/main/code-of-conduct.md
+
+[esm]: https://gist.github.com/sindresorhus/a39789f98801d908bbc7ff3ecc99d99c
+
+[typescript]: https://www.typescriptlang.org
+
+[condition]: https://nodejs.org/api/packages.html#packages_resolving_user_conditions
 
 [micromark]: https://github.com/micromark/micromark
 
-[from-markdown]: https://github.com/syntax-tree/mdast-util-from-markdown
+[plugin]: https://github.com/remarkjs/remark-math
 
-[to-markdown]: https://github.com/syntax-tree/mdast-util-to-markdown
-
-[remark]: https://github.com/remarkjs/remark
-
-[remark-math]: https://github.com/remarkjs/remark-math
-
-[mdast-util-math]: https://github.com/syntax-tree/mdast-util-math
+[util]: https://github.com/syntax-tree/mdast-util-math
 
 [katex]: https://katex.org
 
 [katex-options]: https://katex.org/docs/options.html
+
+[xss]: https://en.wikipedia.org/wiki/Cross-site_scripting
