@@ -187,8 +187,8 @@ math_flow ::= fence_open *( eol *line ) [ eol fence_close ]
 ; number of markers in the opening sequence.
 math_text ::= 1*'$' 1*code 1*'$'
 
-fence_open ::= 3*'$' [ 1*space_or_tab meta ] *space_or_tab
-fence_close ::= 3*'$' *space_or_tab
+fence_open ::= 2*'$' [ 1*space_or_tab meta ] *space_or_tab
+fence_close ::= 2*'$' *space_or_tab
 meta ::= 1*(code - eol - space_or_tab - '$') *( *space_or_tab 1*text )
 
 eol ::= '\r' | '\r\n' | '\n'
