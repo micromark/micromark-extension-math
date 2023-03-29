@@ -1,7 +1,7 @@
 import test from 'tape'
 import katex from 'katex'
 import {micromark} from 'micromark'
-import {math as syntax, mathHtml as html} from '../dev/index.js'
+import {math as syntax, mathHtml as html} from 'micromark-extension-math'
 
 /** @type {import('katex')['default']['renderToString']} */
 // @ts-expect-error: types are incorrect.
