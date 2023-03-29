@@ -5,7 +5,9 @@
 
 /**
  * @typedef {Omit<KatexOptions, 'displayMode'>} Options
- *   Configuration (same as `KatexOptions`, but w/o `displayMode`).
+ *   Configuration.
+ *
+ *   This is the same as `KatexOptions` but w/o `displayMode`.
  */
 
 import katex from 'katex'
@@ -15,15 +17,16 @@ import katex from 'katex'
 const renderToString = katex.renderToString
 
 /**
- * Add support for turning math in markdown to HTML.
+ * Create an extension for `micromark` to support math when serializing to
+ * HTML.
  *
- * Function that can be called to get an HTML extension for micromark (passed
- * in `htmlExtensions`).
+ * > 👉 **Note**: this uses KaTeX to render math.
  *
  * @param {Options | null | undefined} [options]
- *   Configuration (optional).
+ *   Configuration.
  * @returns {HtmlExtension}
- *   HTML extension for micromark (passed in `htmlExtensions`).
+ *   Extension for `micromark` that can be passed in `htmlExtensions`, to
+ *   support math when serializing to HTML.
  */
 export function mathHtml(options) {
   return {

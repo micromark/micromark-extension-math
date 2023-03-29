@@ -8,15 +8,13 @@ import {mathFlow} from './math-flow.js'
 import {mathText} from './math-text.js'
 
 /**
- * Add support for parsing math in markdown.
- *
- * Function that can be called to get a syntax extension for micromark (passed
- * in `extensions`).
+ * Create an extension for `micromark` to enable math syntax.
  *
  * @param {Options | null | undefined} [options]
- *   Configuration (optional).
+ *   Configuration.
  * @returns {Extension}
- *   Syntax extension for micromark (passed in `extensions`).
+ *   Extension for `micromark` that can be passed in `extensions`, to
+ *   enable math syntax.
  */
 export function math(options) {
   return {
