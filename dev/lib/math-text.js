@@ -8,7 +8,7 @@
  * @typedef {import('micromark-util-types').Token} Token
  *
  * @typedef Options
- * @property {boolean} [singleDollarTextMath=true]
+ * @property {boolean | null | undefined} [singleDollarTextMath=true]
  *   Whether to support math (text) with a single dollar (`boolean`, default:
  *   `true`).
  *   Single dollars work in Pandoc and many other places, but often interfere
@@ -21,11 +21,12 @@ import {codes} from 'micromark-util-symbol/codes.js'
 import {types} from 'micromark-util-symbol/types.js'
 
 /**
- * @param {Options} [options]
+ * @param {Options | null | undefined} [options]
  * @returns {Construct}
  */
-export function mathText(options = {}) {
-  let single = options.singleDollarTextMath
+export function mathText(options) {
+  const options_ = options || {}
+  let single = options_.singleDollarTextMath
 
   if (single === null || single === undefined) {
     single = true
@@ -154,7 +155,7 @@ function resolveMathText(events) {
   let headEnterIndex = 3
   /** @type {number} */
   let index
-  /** @type {number|undefined} */
+  /** @type {number | undefined} */
   let enter
 
   // If we start and end with an EOL or a space.

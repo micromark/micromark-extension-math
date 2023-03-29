@@ -13,7 +13,7 @@ import {mathText} from './math-text.js'
  * Function that can be called to get a syntax extension for micromark (passed
  * in `extensions`).
  *
- * @param {Options} [options]
+ * @param {Options | null | undefined} [options]
  *   Configuration (optional).
  * @returns {Extension}
  *   Syntax extension for micromark (passed in `extensions`).
