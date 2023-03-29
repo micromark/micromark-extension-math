@@ -1,7 +1,8 @@
 /**
  * @typedef {import('micromark-util-types').Construct} Construct
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  * @typedef {import('micromark-util-types').State} State
+ * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
+ * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
  */
 
 import {ok as assert} from 'uvu/assert'
@@ -20,7 +21,10 @@ export const mathFlow = {
 /** @type {Construct} */
 const nonLazyLine = {tokenize: tokenizeNonLazyLine, partial: true}
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeMathFenced(effects, ok, nok) {
   const self = this
   const tail = self.events[self.events.length - 1]
@@ -174,7 +178,10 @@ function tokenizeMathFenced(effects, ok, nok) {
   }
 }
 
-/** @type {Tokenizer} */
+/**
+ * @this {TokenizeContext}
+ * @type {Tokenizer}
+ */
 function tokenizeNonLazyLine(effects, ok, nok) {
   const self = this
 

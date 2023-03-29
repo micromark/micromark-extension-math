@@ -1,6 +1,6 @@
 /**
- * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
  * @typedef {import('katex').KatexOptions} KatexOptions
+ * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
  */
 
 /**
