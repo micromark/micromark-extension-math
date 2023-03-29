@@ -3,6 +3,10 @@ import katex from 'katex'
 import {micromark} from 'micromark'
 import {math as syntax, mathHtml as html} from '../dev/index.js'
 
+/** @type {import('katex')['default']['renderToString']} */
+// @ts-expect-error: types are incorrect.
+const renderToString = katex.renderToString
+
 test('markdown -> html (micromark)', (t) => {
   t.equal(
     micromark('$a$, $$b$$, $$$c$$$', {
@@ -10,11 +14,11 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p><span class="math math-inline">' +
-      katex.renderToString('a') +
+      renderToString('a') +
       '</span>, <span class="math math-inline">' +
-      katex.renderToString('b') +
+      renderToString('b') +
       '</span>, <span class="math math-inline">' +
-      katex.renderToString('c') +
+      renderToString('c') +
       '</span></p>',
     'should support one, two, or more dollars by default'
   )
@@ -25,9 +29,9 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>$a$, <span class="math math-inline">' +
-      katex.renderToString('b') +
+      renderToString('b') +
       '</span>, <span class="math math-inline">' +
-      katex.renderToString('c') +
+      renderToString('c') +
       '</span></p>',
     'should support two or more dollars w/ `singleDollarTextMath: false`, but not one'
   )
@@ -49,7 +53,7 @@ test('markdown -> html (micromark)', (t) => {
   t.equal(
     micromark('a \\$$b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a $<span class="math math-inline">' +
-      katex.renderToString('b') +
+      renderToString('b') +
       '</span></p>',
     'should support math (text) right after an escaped dollar sign'
   )
@@ -68,7 +72,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('\\raisebox{0.25em}{$\\frac a b$}') +
+      renderToString('\\raisebox{0.25em}{$\\frac a b$}') +
       '</span> b</p>',
     'should support nested math by using more dollars outside of math (text)'
   )
@@ -79,7 +83,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('\\$') +
+      renderToString('\\$') +
       '</span> b</p>',
     'should support an “escaped” dollar right on the KaTeX level, not on the Markdown level'
   )
@@ -90,7 +94,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('a\\$') +
+      renderToString('a\\$') +
       '</span> b</p>',
     'should support padding with a line ending in math (text)'
   )
@@ -98,7 +102,7 @@ test('markdown -> html (micromark)', (t) => {
   t.equal(
     micromark('a $b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('b') +
+      renderToString('b') +
       '</span></p>',
     'should support math (text) w/ one dollar sign'
   )
@@ -106,7 +110,7 @@ test('markdown -> html (micromark)', (t) => {
   t.equal(
     micromark('a $$b$$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('b') +
+      renderToString('b') +
       '</span></p>',
     'should support math (text) w/ two dollar signs'
   )
@@ -114,7 +118,7 @@ test('markdown -> html (micromark)', (t) => {
   t.equal(
     micromark('a $$$b$$$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('b') +
+      renderToString('b') +
       '</span></p>',
     'should support math (text) w/ three dollar signs'
   )
@@ -125,7 +129,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('b\nc\rd\r\ne') +
+      renderToString('b\nc\rd\r\ne') +
       '</span> f</p>',
     'should support EOLs in math'
   )
@@ -135,9 +139,7 @@ test('markdown -> html (micromark)', (t) => {
       extensions: [syntax()],
       htmlExtensions: [html()]
     }),
-    '<p><span class="math math-inline">' +
-      katex.renderToString('a') +
-      '</span></p>',
+    '<p><span class="math math-inline">' + renderToString('a') + '</span></p>',
     'should not support math (flow) w/ one dollar sign'
   )
 
@@ -147,7 +149,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>',
     'should support math (flow) w/ two dollar sign'
   )
@@ -158,7 +160,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>',
     'should support math (flow) w/ three dollar sign'
   )
@@ -169,7 +171,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('', {displayMode: true}) +
+      renderToString('', {displayMode: true}) +
       '</div>',
     'should support math (flow) w/o content'
   )
@@ -180,7 +182,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>',
     'should support math (flow) w/o closing fence'
   )
@@ -191,7 +193,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>',
     'should support math (flow) w/o closing fence ending at an EOL'
   )
@@ -202,7 +204,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>',
     'should support math (flow) w/ a meta string'
   )
@@ -213,7 +215,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>$$asd$asd\na</p>\n<div class="math math-display">' +
-      katex.renderToString('', {displayMode: true}) +
+      renderToString('', {displayMode: true}) +
       '</div>',
     'should not support math (flow) w/ a dollar sign in the meta string'
   )
@@ -235,7 +237,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>',
     'should support whitespace on the closing fence'
   )
@@ -246,7 +248,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<div class="math math-display">' +
-      katex.renderToString('  a\nb\nc\nd', {displayMode: true}) +
+      renderToString('  a\nb\nc\nd', {displayMode: true}) +
       '</div>',
     'should strip the prefix of the opening fence from content lines'
   )
@@ -258,7 +260,7 @@ test('markdown -> html (micromark)', (t) => {
     }),
     '<blockquote>\n' +
       '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>\n' +
       '<p>b</p>\n' +
       '</blockquote>',
@@ -273,7 +275,7 @@ test('markdown -> html (micromark)', (t) => {
     '<ul>\n' +
       '<li>\n' +
       '<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>\n' +
       'b' +
       '</li>\n' +
@@ -287,7 +289,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('\\sum_{\\substack{0<i<m\\\\0<j<n}}') +
+      renderToString('\\sum_{\\substack{0<i<m\\\\0<j<n}}') +
       '</span> b</p>',
     'should support `<`'
   )
@@ -298,7 +300,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a <span class="math math-inline">' +
-      katex.renderToString('\\text{a \\"{a} c}') +
+      renderToString('\\text{a \\"{a} c}') +
       '</span> b</p>',
     'should support `"`'
   )
@@ -318,9 +320,9 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<blockquote>\n<div class="math math-display">' +
-      katex.renderToString('', {displayMode: true}) +
+      renderToString('', {displayMode: true}) +
       '</div>\n</blockquote>\n<p>a</p>\n<div class="math math-display">' +
-      katex.renderToString('', {displayMode: true}) +
+      renderToString('', {displayMode: true}) +
       '</div>',
     'should not support laziness (1)'
   )
@@ -331,9 +333,9 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<blockquote>\n<div class="math math-display">' +
-      katex.renderToString('a', {displayMode: true}) +
+      renderToString('a', {displayMode: true}) +
       '</div>\n</blockquote>\n<div class="math math-display">' +
-      katex.renderToString('', {displayMode: true}) +
+      renderToString('', {displayMode: true}) +
       '</div>',
     'should not support laziness (2)'
   )
@@ -344,7 +346,7 @@ test('markdown -> html (micromark)', (t) => {
       htmlExtensions: [html()]
     }),
     '<p>a</p>\n<blockquote>\n<div class="math math-display">' +
-      katex.renderToString('', {displayMode: true}) +
+      renderToString('', {displayMode: true}) +
       '</div>\n</blockquote>',
     'should not support laziness (3)'
   )

@@ -10,6 +10,10 @@
 
 import katex from 'katex'
 
+/** @type {import('katex')['default']['renderToString']} */
+// @ts-expect-error: types are incorrect.
+const renderToString = katex.renderToString
+
 /**
  * Add support for turning math in markdown to HTML.
  *
@@ -76,9 +80,6 @@ export function mathHtml(options) {
    * @returns {string}
    */
   function math(value, displayMode) {
-    return katex.renderToString(
-      value,
-      Object.assign({}, options, {displayMode})
-    )
+    return renderToString(value, Object.assign({}, options, {displayMode}))
   }
 }
