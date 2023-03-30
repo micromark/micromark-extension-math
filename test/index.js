@@ -8,6 +8,14 @@ import {math as syntax, mathHtml as html} from 'micromark-extension-math'
 // @ts-expect-error: types are incorrect.
 const renderToString = katex.renderToString
 
+test('core', async () => {
+  assert.deepEqual(
+    Object.keys(await import('micromark-extension-math')).sort(),
+    ['math', 'mathHtml'],
+    'should expose the public api'
+  )
+})
+
 test('markdown -> html (micromark)', () => {
   assert.equal(
     micromark('$a$, $$b$$, $$$c$$$', {
