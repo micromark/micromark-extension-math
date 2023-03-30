@@ -8,12 +8,17 @@
  * @typedef {import('micromark-util-types').Token} Token
  *
  * @typedef Options
+ *   Configuration.
  * @property {boolean | null | undefined} [singleDollarTextMath=true]
  *   Whether to support math (text) with a single dollar (`boolean`, default:
  *   `true`).
+ *
  *   Single dollars work in Pandoc and many other places, but often interfere
  *   with “normal” dollars in text.
  */
+
+// To do: next major: clean spaces in HTML compiler.
+// This has to be coordinated together with `mdast-util-math`.
 
 import {ok as assert} from 'uvu/assert'
 import {markdownLineEnding} from 'micromark-util-character'
@@ -52,40 +57,72 @@ export function mathText(options) {
 
     return start
 
-    /** @type {State} */
+    /**
+     * Start of math (text).
+     *
+     * ```markdown
+     * > | $a$
+     *     ^
+     * > | \$a$
+     *      ^
+     * ```
+     *
+     * @type {State}
+     */
     function start(code) {
       assert(code === codes.dollarSign, 'expected `$`')
       assert(previous.call(self, self.previous), 'expected correct previous')
       effects.enter('mathText')
       effects.enter('mathTextSequence')
-      return openingSequence(code)
+      return sequenceOpen(code)
     }
 
-    /** @type {State} */
-    function openingSequence(code) {
+    /**
+     * In opening sequence.
+     *
+     * ```markdown
+     * > | $a$
+     *     ^
+     * ```
+     *
+     * @type {State}
+     */
+
+    function sequenceOpen(code) {
       if (code === codes.dollarSign) {
         effects.consume(code)
         sizeOpen++
-        return openingSequence
+        return sequenceOpen
       }
 
-      if (sizeOpen < 2 && !single) return nok(code)
+      // Not enough markers in the sequence.
+      if (sizeOpen < 2 && !single) {
+        return nok(code)
+      }
+
       effects.exit('mathTextSequence')
-      return gap(code)
+      return between(code)
     }
 
-    /** @type {State} */
-    function gap(code) {
+    /**
+     * Between something and something else.
+     *
+     * ```markdown
+     * > | $a$
+     *      ^^
+     * ```
+     *
+     * @type {State}
+     */
+    function between(code) {
       if (code === codes.eof) {
         return nok(code)
       }
 
-      // Closing fence?
-      // Could also be data.
       if (code === codes.dollarSign) {
         token = effects.enter('mathTextSequence')
         size = 0
-        return closingSequence(code)
+        return sequenceClose(code)
       }
 
       // Tabs don’t work, and virtual spaces don’t make sense.
@@ -93,14 +130,14 @@ export function mathText(options) {
         effects.enter('space')
         effects.consume(code)
         effects.exit('space')
-        return gap
+        return between
       }
 
       if (markdownLineEnding(code)) {
         effects.enter(types.lineEnding)
         effects.consume(code)
         effects.exit(types.lineEnding)
-        return gap
+        return between
       }
 
       // Data.
@@ -108,8 +145,16 @@ export function mathText(options) {
       return data(code)
     }
 
-    // In math.
-    /** @type {State} */
+    /**
+     * In data.
+     *
+     * ```markdown
+     * > | $a$
+     *      ^
+     * ```
+     *
+     * @type {State}
+     */
     function data(code) {
       if (
         code === codes.eof ||
@@ -118,21 +163,30 @@ export function mathText(options) {
         markdownLineEnding(code)
       ) {
         effects.exit('mathTextData')
-        return gap(code)
+        return between(code)
       }
 
       effects.consume(code)
       return data
     }
 
-    // Closing fence.
-    /** @type {State} */
-    function closingSequence(code) {
+    /**
+     * In closing sequence.
+     *
+     * ```markdown
+     * > | `a`
+     *       ^
+     * ```
+     *
+     * @type {State}
+     */
+
+    function sequenceClose(code) {
       // More.
       if (code === codes.dollarSign) {
         effects.consume(code)
         size++
-        return closingSequence
+        return sequenceClose
       }
 
       // Done!

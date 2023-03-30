@@ -19,7 +19,10 @@ export const mathFlow = {
 }
 
 /** @type {Construct} */
-const nonLazyLine = {tokenize: tokenizeNonLazyLine, partial: true}
+const nonLazyContinuation = {
+  tokenize: tokenizeNonLazyContinuation,
+  partial: true
+}
 
 /**
  * @this {TokenizeContext}
@@ -36,7 +39,18 @@ function tokenizeMathFenced(effects, ok, nok) {
 
   return start
 
-  /** @type {State} */
+  /**
+   * Start of math.
+   *
+   * ```markdown
+   * > | $$
+   *     ^
+   *   | \frac{1}{2}
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
   function start(code) {
     assert(code === codes.dollarSign, 'expected `$`')
     effects.enter('mathFlow')
@@ -45,7 +59,18 @@ function tokenizeMathFenced(effects, ok, nok) {
     return sequenceOpen(code)
   }
 
-  /** @type {State} */
+  /**
+   * In opening fence sequence.
+   *
+   * ```markdown
+   * > | $$
+   *      ^
+   *   | \frac{1}{2}
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
   function sequenceOpen(code) {
     if (code === codes.dollarSign) {
       effects.consume(code)
@@ -53,16 +78,30 @@ function tokenizeMathFenced(effects, ok, nok) {
       return sequenceOpen
     }
 
+    if (sizeOpen < 2) {
+      return nok(code)
+    }
+
     effects.exit('mathFlowFenceSequence')
-    return sizeOpen < 2
-      ? nok(code)
-      : factorySpace(effects, metaOpen, types.whitespace)(code)
+    return factorySpace(effects, metaBefore, types.whitespace)(code)
   }
 
-  /** @type {State} */
-  function metaOpen(code) {
+  /**
+   * In opening fence, before meta.
+   *
+   * ```markdown
+   * > | $$asciimath
+   *       ^
+   *   | x < y
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
+
+  function metaBefore(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
-      return openAfter(code)
+      return metaAfter(code)
     }
 
     effects.enter('mathFlowFenceMeta')
@@ -70,66 +109,169 @@ function tokenizeMathFenced(effects, ok, nok) {
     return meta(code)
   }
 
-  /** @type {State} */
+  /**
+   * In meta.
+   *
+   * ```markdown
+   * > | $$asciimath
+   *        ^
+   *   | x < y
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
   function meta(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit(types.chunkString)
       effects.exit('mathFlowFenceMeta')
-      return openAfter(code)
+      return metaAfter(code)
     }
 
-    if (code === codes.dollarSign) return nok(code)
+    if (code === codes.dollarSign) {
+      return nok(code)
+    }
+
     effects.consume(code)
     return meta
   }
 
-  /** @type {State} */
-  function openAfter(code) {
+  /**
+   * After meta.
+   *
+   * ```markdown
+   * > | $$
+   *       ^
+   *   | \frac{1}{2}
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
+  function metaAfter(code) {
+    // Guaranteed to be eol/eof.
     effects.exit('mathFlowFence')
-    return self.interrupt ? ok(code) : contentStart(code)
+
+    if (self.interrupt) {
+      return ok(code)
+    }
+
+    return effects.attempt(
+      nonLazyContinuation,
+      beforeNonLazyContinuation,
+      after
+    )(code)
   }
 
-  /** @type {State} */
+  /**
+   * After eol/eof in math, at a non-lazy closing fence or content.
+   *
+   * ```markdown
+   *   | $$
+   * > | \frac{1}{2}
+   *     ^
+   * > | $$
+   *     ^
+   * ```
+   *
+   * @type {State}
+   */
+  function beforeNonLazyContinuation(code) {
+    return effects.attempt(
+      {tokenize: tokenizeClosingFence, partial: true},
+      after,
+      contentStart
+    )(code)
+  }
+
+  /**
+   * Before math content, definitely not before a closing fence.
+   *
+   * ```markdown
+   *   | $$
+   * > | \frac{1}{2}
+   *     ^
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
   function contentStart(code) {
+    return (
+      initialSize
+        ? factorySpace(
+            effects,
+            beforeContentChunk,
+            types.linePrefix,
+            initialSize + 1
+          )
+        : beforeContentChunk
+    )(code)
+  }
+
+  /**
+   * Before math content, after optional prefix.
+   *
+   * ```markdown
+   *   | $$
+   * > | \frac{1}{2}
+   *     ^
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
+  function beforeContentChunk(code) {
     if (code === codes.eof) {
       return after(code)
     }
 
     if (markdownLineEnding(code)) {
       return effects.attempt(
-        nonLazyLine,
-        effects.attempt(
-          {tokenize: tokenizeClosingFence, partial: true},
-          after,
-          initialSize
-            ? factorySpace(
-                effects,
-                contentStart,
-                types.linePrefix,
-                initialSize + 1
-              )
-            : contentStart
-        ),
+        nonLazyContinuation,
+        beforeNonLazyContinuation,
         after
       )(code)
     }
 
     effects.enter('mathFlowValue')
-    return contentContinue(code)
+    return contentChunk(code)
   }
 
-  /** @type {State} */
-  function contentContinue(code) {
+  /**
+   * In math content.
+   *
+   * ```markdown
+   *   | $$
+   * > | \frac{1}{2}
+   *      ^
+   *   | $$
+   * ```
+   *
+   * @type {State}
+   */
+  function contentChunk(code) {
     if (code === codes.eof || markdownLineEnding(code)) {
       effects.exit('mathFlowValue')
-      return contentStart(code)
+      return beforeContentChunk(code)
     }
 
     effects.consume(code)
-    return contentContinue
+    return contentChunk
   }
 
-  /** @type {State} */
+  /**
+   * After math (ha!).
+   *
+   * ```markdown
+   *   | $$
+   *   | \frac{1}{2}
+   * > | $$
+   *       ^
+   * ```
+   *
+   * @type {State}
+   */
   function after(code) {
     effects.exit('mathFlow')
     return ok(code)
@@ -139,35 +281,81 @@ function tokenizeMathFenced(effects, ok, nok) {
   function tokenizeClosingFence(effects, ok, nok) {
     let size = 0
 
+    /**
+     * Before closing fence, at optional whitespace.
+     *
+     * ```markdown
+     *   | $$
+     *   | \frac{1}{2}
+     * > | $$
+     *     ^
+     * ```
+     */
     return factorySpace(
       effects,
-      closingPrefixAfter,
+      beforeSequenceClose,
       types.linePrefix,
       constants.tabSize
     )
 
-    /** @type {State} */
-    function closingPrefixAfter(code) {
+    /**
+     * In closing fence, after optional whitespace, at sequence.
+     *
+     * ```markdown
+     *   | $$
+     *   | \frac{1}{2}
+     * > | $$
+     *     ^
+     * ```
+     *
+     * @type {State}
+     */
+    function beforeSequenceClose(code) {
       effects.enter('mathFlowFence')
       effects.enter('mathFlowFenceSequence')
-      return closingSequence(code)
+      return sequenceClose(code)
     }
 
-    /** @type {State} */
-    function closingSequence(code) {
+    /**
+     * In closing fence sequence.
+     *
+     * ```markdown
+     *   | $$
+     *   | \frac{1}{2}
+     * > | $$
+     *      ^
+     * ```
+     *
+     * @type {State}
+     */
+    function sequenceClose(code) {
       if (code === codes.dollarSign) {
-        effects.consume(code)
         size++
-        return closingSequence
+        effects.consume(code)
+        return sequenceClose
       }
 
-      if (size < sizeOpen) return nok(code)
+      if (size < sizeOpen) {
+        return nok(code)
+      }
+
       effects.exit('mathFlowFenceSequence')
-      return factorySpace(effects, closingSequenceEnd, types.whitespace)(code)
+      return factorySpace(effects, afterSequenceClose, types.whitespace)(code)
     }
 
-    /** @type {State} */
-    function closingSequenceEnd(code) {
+    /**
+     * After closing fence sequence, after optional whitespace.
+     *
+     * ```markdown
+     *   | $$
+     *   | \frac{1}{2}
+     * > | $$
+     *       ^
+     * ```
+     *
+     * @type {State}
+     */
+    function afterSequenceClose(code) {
       if (code === codes.eof || markdownLineEnding(code)) {
         effects.exit('mathFlowFence')
         return ok(code)
@@ -182,13 +370,17 @@ function tokenizeMathFenced(effects, ok, nok) {
  * @this {TokenizeContext}
  * @type {Tokenizer}
  */
-function tokenizeNonLazyLine(effects, ok, nok) {
+function tokenizeNonLazyContinuation(effects, ok, nok) {
   const self = this
 
   return start
 
   /** @type {State} */
   function start(code) {
+    if (code === null) {
+      return ok(code)
+    }
+
     assert(markdownLineEnding(code), 'expected eol')
     effects.enter(types.lineEnding)
     effects.consume(code)
