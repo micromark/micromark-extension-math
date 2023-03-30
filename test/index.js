@@ -1,4 +1,5 @@
-import test from 'tape'
+import assert from 'node:assert/strict'
+import test from 'node:test'
 import katex from 'katex'
 import {micromark} from 'micromark'
 import {math as syntax, mathHtml as html} from 'micromark-extension-math'
@@ -7,8 +8,8 @@ import {math as syntax, mathHtml as html} from 'micromark-extension-math'
 // @ts-expect-error: types are incorrect.
 const renderToString = katex.renderToString
 
-test('markdown -> html (micromark)', (t) => {
-  t.equal(
+test('markdown -> html (micromark)', () => {
+  assert.equal(
     micromark('$a$, $$b$$, $$$c$$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -23,7 +24,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support one, two, or more dollars by default'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$a$, $$b$$, $$$c$$$', {
       extensions: [syntax({singleDollarTextMath: false})],
       htmlExtensions: [html()]
@@ -36,13 +37,13 @@ test('markdown -> html (micromark)', (t) => {
     'should support two or more dollars w/ `singleDollarTextMath: false`, but not one'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a \\$b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a $b$</p>',
     'should support an escaped dollar sign which would otherwise open math'
   )
 
-  t.throws(
+  assert.throws(
     () => {
       micromark('a $b\\$', {extensions: [syntax()], htmlExtensions: [html()]})
     },
@@ -50,7 +51,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support escaped dollar signs in math (text)'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a \\$$b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a $<span class="math math-inline">' +
       renderToString('b') +
@@ -58,7 +59,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (text) right after an escaped dollar sign'
   )
 
-  t.throws(
+  assert.throws(
     () => {
       micromark('a $$ $ $$', {extensions: [syntax()], htmlExtensions: [html()]})
     },
@@ -66,7 +67,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support a single dollar in math (text) w/ padding and two dollar signs'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $$\\raisebox{0.25em}{$\\frac a b$}$$ b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -77,7 +78,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support nested math by using more dollars outside of math (text)'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $$ \\$ $$ b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -88,7 +89,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support an “escaped” dollar right on the KaTeX level, not on the Markdown level'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $$\na\\$ $$ b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -99,7 +100,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support padding with a line ending in math (text)'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $b$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
       renderToString('b') +
@@ -107,7 +108,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (text) w/ one dollar sign'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $$b$$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
       renderToString('b') +
@@ -115,7 +116,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (text) w/ two dollar signs'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $$$b$$$', {extensions: [syntax()], htmlExtensions: [html()]}),
     '<p>a <span class="math math-inline">' +
       renderToString('b') +
@@ -123,7 +124,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (text) w/ three dollar signs'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $b\nc\rd\r\ne$ f', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -134,7 +135,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support EOLs in math'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$\na\n$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -143,7 +144,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support math (flow) w/ one dollar sign'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$\na\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -154,7 +155,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) w/ two dollar sign'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$$\na\n$$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -165,7 +166,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) w/ three dollar sign'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -176,7 +177,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) w/o content'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$\na', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -187,7 +188,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) w/o closing fence'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$\na\n', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -198,7 +199,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) w/o closing fence ending at an EOL'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$asd &amp; \\& asd\na\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -209,7 +210,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) w/ a meta string'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$asd$asd\na\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -220,7 +221,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support math (flow) w/ a dollar sign in the meta string'
   )
 
-  t.throws(
+  assert.throws(
     () => {
       micromark('$$\na\n$$ b', {
         extensions: [syntax()],
@@ -231,7 +232,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support math (flow) w/ content on the closing fence'
   )
 
-  t.equal(
+  assert.equal(
     micromark('$$\na\n$$  ', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -242,7 +243,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support whitespace on the closing fence'
   )
 
-  t.equal(
+  assert.equal(
     micromark('  $$\n\ta\n  b\n c\nd\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -253,7 +254,7 @@ test('markdown -> html (micromark)', (t) => {
     'should strip the prefix of the opening fence from content lines'
   )
 
-  t.equal(
+  assert.equal(
     micromark('> $$\n> a\n> $$\n> b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -267,7 +268,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) in a block quote'
   )
 
-  t.equal(
+  assert.equal(
     micromark('* $$\n  a\n  $$\n  b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -283,7 +284,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support math (flow) in a list (item)'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $\\sum_{\\substack{0<i<m\\\\0<j<n}}$ b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -294,7 +295,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support `<`'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $\\text{a \\"{a} c}$ b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -305,7 +306,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support `"`'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a $$ $ $$', {
       extensions: [syntax()],
       htmlExtensions: [html({throwOnError: false})]
@@ -314,7 +315,7 @@ test('markdown -> html (micromark)', (t) => {
     'should support options'
   )
 
-  t.equal(
+  assert.equal(
     micromark('> $$\na\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -327,7 +328,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support laziness (1)'
   )
 
-  t.equal(
+  assert.equal(
     micromark('> $$\n> a\n$$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -340,7 +341,7 @@ test('markdown -> html (micromark)', (t) => {
     'should not support laziness (2)'
   )
 
-  t.equal(
+  assert.equal(
     micromark('a\n> $$', {
       extensions: [syntax()],
       htmlExtensions: [html()]
@@ -350,6 +351,4 @@ test('markdown -> html (micromark)', (t) => {
       '</div>\n</blockquote>',
     'should not support laziness (3)'
   )
-
-  t.end()
 })
