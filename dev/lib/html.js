@@ -5,9 +5,11 @@
 
 /**
  * @typedef {Omit<KatexOptions, 'displayMode'>} Options
- *   Configuration.
+ *   Configuration for HTML output.
  *
- *   This is the same as `KatexOptions` but w/o `displayMode`.
+ *   > 👉 **Note**: passed to `katex.renderToString`.
+ *   > `displayMode` is overwritten by this plugin, to `false` for math in
+ *   > text, and `true` for math in flow.
  */
 
 import katex from 'katex'

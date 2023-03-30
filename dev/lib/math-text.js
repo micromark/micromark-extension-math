@@ -10,11 +10,11 @@
  * @typedef Options
  *   Configuration.
  * @property {boolean | null | undefined} [singleDollarTextMath=true]
- *   Whether to support math (text) with a single dollar (`boolean`, default:
- *   `true`).
- *
+ *   Whether to support math (text) with a single dollar.
  *   Single dollars work in Pandoc and many other places, but often interfere
  *   with “normal” dollars in text.
+ *   If you turn this off, you can use two or more dollars for text math.
+
  */
 
 // To do: next major: clean spaces in HTML compiler.
