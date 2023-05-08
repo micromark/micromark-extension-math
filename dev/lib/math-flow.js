@@ -295,7 +295,7 @@ function tokenizeMathFenced(effects, ok, nok) {
       effects,
       beforeSequenceClose,
       types.linePrefix,
-      constants.tabSize
+      initialSize ? initialSize + 1 : constants.tabSize
     )
 
     /**

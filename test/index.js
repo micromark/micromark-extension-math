@@ -263,6 +263,28 @@ test('markdown -> html (micromark)', () => {
   )
 
   assert.equal(
+    micromark('      $$\n      a\n      $$', {
+      extensions: [syntax(), {disable: {null: ['codeIndented']}}],
+      htmlExtensions: [html()]
+    }),
+    '<div class="math math-display">' +
+      renderToString('a', {displayMode: true}) +
+      '</div>',
+    'should strip the prefix of the opening fence from closing fence line (codeIndented disabled)'
+  )
+
+  assert.throws(
+    () => {
+      micromark('      $$\n      a\n       $$', {
+        extensions: [syntax(), {disable: {null: ['codeIndented']}}],
+        htmlExtensions: [html()]
+      })
+    },
+    /KaTeX parse error: Can't use function '\$' in math mode at position 4/,
+    'should not tolerate a longer prefix in closing fence line than used in opening fence line (codeIndented disabled)'
+  )
+
+  assert.equal(
     micromark('> $$\n> a\n> $$\n> b', {
       extensions: [syntax()],
       htmlExtensions: [html()]
