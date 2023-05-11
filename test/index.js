@@ -263,6 +263,17 @@ test('markdown -> html (micromark)', () => {
   )
 
   assert.equal(
+    micromark('      $$\n      a\n          $$', {
+      extensions: [syntax(), {disable: {null: ['codeIndented']}}],
+      htmlExtensions: [html()]
+    }),
+    '<div class="math math-display">' +
+      renderToString('a', {displayMode: true}) +
+      '</div>',
+    'should strip arbitrary length prefix from closing fence line (codeIndented disabled)'
+  )
+
+  assert.equal(
     micromark('> $$\n> a\n> $$\n> b', {
       extensions: [syntax()],
       htmlExtensions: [html()]

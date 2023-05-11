@@ -295,7 +295,9 @@ function tokenizeMathFenced(effects, ok, nok) {
       effects,
       beforeSequenceClose,
       types.linePrefix,
-      constants.tabSize
+      self.parser.constructs.disable.null.includes('codeIndented')
+        ? undefined
+        : constants.tabSize
     )
 
     /**
