@@ -281,6 +281,7 @@ function tokenizeMathFenced(effects, ok, nok) {
   function tokenizeClosingFence(effects, ok, nok) {
     let size = 0
 
+    assert(self.parser.constructs.disable.null, 'expected `disable.null`')
     /**
      * Before closing fence, at optional whitespace.
      *
