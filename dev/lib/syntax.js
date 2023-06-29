@@ -3,7 +3,7 @@
  * @typedef {import('./math-text.js').Options} Options
  */
 
-import {codes} from 'micromark-util-symbol/codes.js'
+import {codes} from 'micromark-util-symbol'
 import {mathFlow} from './math-flow.js'
 import {mathText} from './math-text.js'
 
