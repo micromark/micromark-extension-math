@@ -25,18 +25,16 @@
   ],
   "sideEffects": false,
   "type": "module",
-  "main": "index.js",
-  "types": "index.d.ts",
+  "exports": {
+    "development": "./dev/index.js",
+    "default": "./index.js"
+  },
   "files": [
     "dev/",
     "lib/",
     "index.d.ts",
     "index.js"
   ],
-  "exports": {
-    "development": "./dev/index.js",
-    "default": "./index.js"
-  },
   "dependencies": {
     "@types/katex": "^0.16.0",
     "devlop": "^1.0.0",
