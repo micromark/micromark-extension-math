@@ -5,12 +5,12 @@
     "declaration": true,
     "emitDeclarationOnly": true,
     "exactOptionalPropertyTypes": true,
-    "lib": ["es2020"],
+    "lib": ["es2022"],
     "module": "node16",
     // `KaTeX` types needs DOM types, which we don’t require.
     "skipLibCheck": true,
     "strict": true,
-    "target": "es2020"
+    "target": "es2022"
   },
   "exclude": ["coverage/", "lib/", "node_modules/", "index.js"],
   "include": ["**/*.js", "dev/index.d.ts"]
