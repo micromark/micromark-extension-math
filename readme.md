@@ -71,14 +71,14 @@ npm install micromark-extension-math
 In Deno with [`esm.sh`][esmsh]:
 
 ```js
-import {math, mathHtml} from 'https://esm.sh/micromark-extension-math@2'
+import {math, mathHtml} from 'https://esm.sh/micromark-extension-math@3'
 ```
 
 In browsers with [`esm.sh`][esmsh]:
 
 ```html
 <script type="module">
-  import {math, mathHtml} from 'https://esm.sh/micromark-extension-math@2?bundle'
+  import {math, mathHtml} from 'https://esm.sh/micromark-extension-math@3?bundle'
 </script>
 ```
 
