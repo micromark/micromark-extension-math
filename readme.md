@@ -112,8 +112,8 @@ console.log(output)
 …now running `node example.js` yields (abbreviated):
 
 ```html
-<p>Lift(<span class="math math-inline"><span class="katex">…</span></span>) like the following equation.</p>
-<div class="math math-display"><span class="katex-display"><span class="katex">…</span></div>
+<p>Lift(<span class="math math-inline"><span class="katex">…</span></span>) can be determined by Lift Coefficient (<span class="math math-inline"><span class="katex">…</span></span>) like the following equation.</p>
+<div class="math math-display"><span class="katex-display"><span class="katex">…</span></span></div>
 ```
 
 ## API
@@ -199,10 +199,11 @@ Math (flow) does not relate to HTML elements.
 well and isn’t widely supported.
 Instead, this uses [KaTeX][], which generates MathML as a fallback but also
 generates a bunch of divs and spans so math look pretty.
-The KaTeX result is wrapped in `<div>` and `<span>` elements, with two classes:
-`math` and either `math-display` or `math-inline`.
+The KaTeX result is wrapped in `<div>` (for flow, block) and `<span>` (for text,
+inline) elements, with two classes: `math` and either `math-display` or
+`math-inline`.
 
-When turning markdown into HTML, each line ending in math (text) are turned
+When turning markdown into HTML, each line ending in math (text) is turned
 into a space.
 
 ## CSS
