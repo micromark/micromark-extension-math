@@ -21,7 +21,7 @@
 // To do: next major: clean spaces in HTML compiler.
 // This has to be coordinated together with `mdast-util-math`.
 
-import {ok as assert} from 'uvu/assert'
+import {ok as assert} from 'devlop'
 import {markdownLineEnding} from 'micromark-util-character'
 import {codes, types} from 'micromark-util-symbol'
 
