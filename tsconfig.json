@@ -1,18 +1,17 @@
 {
-  "include": ["**/*.js", "dev/index.d.ts"],
-  "exclude": ["coverage/", "lib/", "node_modules/", "index.js"],
   "compilerOptions": {
-    "customConditions": ["development"],
     "checkJs": true,
+    "customConditions": ["development"],
     "declaration": true,
     "emitDeclarationOnly": true,
     "exactOptionalPropertyTypes": true,
-    "forceConsistentCasingInFileNames": true,
     "lib": ["es2020"],
     "module": "node16",
-    "newLine": "lf",
+    // `KaTeX` types needs DOM types, which we don’t require.
     "skipLibCheck": true,
     "strict": true,
     "target": "es2020"
-  }
+  },
+  "exclude": ["coverage/", "lib/", "node_modules/", "index.js"],
+  "include": ["**/*.js", "dev/index.d.ts"]
 }
