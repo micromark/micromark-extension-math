@@ -9,7 +9,7 @@
  *
  *   > 👉 **Note**: passed to `katex.renderToString`.
  *   > `displayMode` is overwritten by this plugin, to `false` for math in
- *   > text, and `true` for math in flow.
+ *   > text (inline), and `true` for math in flow (block).
  */
 
 import katex from 'katex'
@@ -24,8 +24,8 @@ const renderToString = katex.renderToString
  *
  * > 👉 **Note**: this uses KaTeX to render math.
  *
- * @param {Options | null | undefined} [options]
- *   Configuration.
+ * @param {Options | null | undefined} [options={}]
+ *   Configuration (default: `{}`).
  * @returns {HtmlExtension}
  *   Extension for `micromark` that can be passed in `htmlExtensions`, to
  *   support math when serializing to HTML.
@@ -81,10 +81,13 @@ export function mathHtml(options) {
 
   /**
    * @param {string} value
+   *   Math text.
    * @param {boolean} displayMode
+   *   Whether the math is in display mode.
    * @returns {string}
+   *   HTML.
    */
   function math(value, displayMode) {
-    return renderToString(value, Object.assign({}, options, {displayMode}))
+    return renderToString(value, {...options, displayMode})
   }
 }

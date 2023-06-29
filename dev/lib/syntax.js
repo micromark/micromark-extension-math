@@ -10,8 +10,8 @@ import {mathText} from './math-text.js'
 /**
  * Create an extension for `micromark` to enable math syntax.
  *
- * @param {Options | null | undefined} [options]
- *   Configuration.
+ * @param {Options | null | undefined} [options={}]
+ *   Configuration (default: `{}`).
  * @returns {Extension}
  *   Extension for `micromark` that can be passed in `extensions`, to
  *   enable math syntax.

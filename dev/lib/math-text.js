@@ -10,7 +10,8 @@
  * @typedef Options
  *   Configuration.
  * @property {boolean | null | undefined} [singleDollarTextMath=true]
- *   Whether to support math (text) with a single dollar.
+ *   Whether to support math (text) with a single dollar (default: `true`).
+ *
  *   Single dollars work in Pandoc and many other places, but often interfere
  *   with “normal” dollars in text.
  *   If you turn this off, you can use two or more dollars for text math.
@@ -26,8 +27,10 @@ import {codes} from 'micromark-util-symbol/codes.js'
 import {types} from 'micromark-util-symbol/types.js'
 
 /**
- * @param {Options | null | undefined} [options]
+ * @param {Options | null | undefined} [options={}]
+ *   Configuration (default: `{}`).
  * @returns {Construct}
+ *   Construct.
  */
 export function mathText(options) {
   const options_ = options || {}
