@@ -4,8 +4,6 @@ import katex from 'katex'
 import {micromark} from 'micromark'
 import {math, mathHtml} from 'micromark-extension-math'
 
-/** @type {import('katex')['default']['renderToString']} */
-// @ts-expect-error: types are incorrect.
 const renderToString = katex.renderToString
 
 test('math', async function (t) {

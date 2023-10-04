@@ -14,8 +14,6 @@
 
 import katex from 'katex'
 
-/** @type {import('katex')['default']['renderToString']} */
-// @ts-expect-error: types are incorrect.
 const renderToString = katex.renderToString
 
 /**
