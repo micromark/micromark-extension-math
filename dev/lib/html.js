@@ -1,15 +1,6 @@
 /**
- * @typedef {import('katex').KatexOptions} KatexOptions
- * @typedef {import('micromark-util-types').HtmlExtension} HtmlExtension
- */
-
-/**
- * @typedef {Omit<KatexOptions, 'displayMode'>} Options
- *   Configuration for HTML output.
- *
- *   > 👉 **Note**: passed to `katex.renderToString`.
- *   > `displayMode` is overwritten by this plugin, to `false` for math in
- *   > text (inline), and `true` for math in flow (block).
+ * @import {HtmlOptions as Options} from 'micromark-extension-math'
+ * @import {HtmlExtension} from 'micromark-util-types'
  */
 
 import katex from 'katex'

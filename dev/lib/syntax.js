@@ -1,6 +1,6 @@
 /**
- * @typedef {import('micromark-util-types').Extension} Extension
- * @typedef {import('./math-text.js').Options} Options
+ * @import {Options} from 'micromark-extension-math'
+ * @import {Extension} from 'micromark-util-types'
  */
 
 import {codes} from 'micromark-util-symbol'

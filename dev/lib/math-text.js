@@ -1,21 +1,6 @@
 /**
- * @typedef {import('micromark-util-types').Construct} Construct
- * @typedef {import('micromark-util-types').TokenizeContext} TokenizeContext
- * @typedef {import('micromark-util-types').Tokenizer} Tokenizer
- * @typedef {import('micromark-util-types').Previous} Previous
- * @typedef {import('micromark-util-types').Resolver} Resolver
- * @typedef {import('micromark-util-types').State} State
- * @typedef {import('micromark-util-types').Token} Token
- *
- * @typedef Options
- *   Configuration.
- * @property {boolean | null | undefined} [singleDollarTextMath=true]
- *   Whether to support math (text) with a single dollar (default: `true`).
- *
- *   Single dollars work in Pandoc and many other places, but often interfere
- *   with “normal” dollars in text.
- *   If you turn this off, you can use two or more dollars for text math.
-
+ * @import {Options} from 'micromark-extension-math'
+ * @import {Construct, Previous, Resolver, State, Token, TokenizeContext, Tokenizer} from 'micromark-util-types'
  */
 
 // To do: next major: clean spaces in HTML compiler.
