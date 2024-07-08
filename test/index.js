@@ -15,6 +15,19 @@ test('math', async function (t) {
   })
 
   await t.test(
+    'should skip `mathFlow` and `mathText` construct  if `disable.null` includes `mathFlow` and `mathText`',
+    async function () {
+      assert.equal(
+        micromark('$a$, $$b$$, $$$c$$$', {
+          extensions: [math(), {disable: {null: ['mathFlow', 'mathText']}}],
+          htmlExtensions: [mathHtml()]
+        }),
+        '<p>$a$, $$b$$, $$$c$$$</p>'
+      )
+    }
+  )
+
+  await t.test(
     'should support one, two, or more dollars by default',
     async function () {
       assert.equal(
