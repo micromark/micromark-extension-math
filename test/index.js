@@ -15,14 +15,14 @@ test('math', async function (t) {
   })
 
   await t.test(
-    'should skip `mathFlow` and `mathText` construct  if `disable.null` includes `mathFlow` and `mathText`',
+    'should skip `mathFlow` and `mathText` construct if `disable.null` includes `mathFlow` and `mathText`',
     async function () {
       assert.equal(
-        micromark('$a$, $$b$$, $$$c$$$', {
+        micromark('$a$, $$b$$\n\n$$\nc\n$$', {
           extensions: [math(), {disable: {null: ['mathFlow', 'mathText']}}],
           htmlExtensions: [mathHtml()]
         }),
-        '<p>$a$, $$b$$, $$$c$$$</p>'
+        '<p>$a$, $$b$$</p>\n<p>$$\nc\n$$</p>'
       )
     }
   )
