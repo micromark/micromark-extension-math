@@ -213,8 +213,10 @@ You should use `katex.css` somewhere on the page where the math is shown to
 style it properly.
 At the time of writing, the last version is:
 
+<!-- To do: update and copy paste the one from: https://katex.org/docs/browser -->
+
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.4/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
 ```
 
 ## Syntax
