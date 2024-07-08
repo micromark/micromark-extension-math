@@ -27,7 +27,8 @@ export function mathText(options) {
   return {
     tokenize: tokenizeMathText,
     resolve: resolveMathText,
-    previous
+    previous,
+    name: 'mathText'
   }
 
   /**

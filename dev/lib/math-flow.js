@@ -10,7 +10,8 @@ import {codes, constants, types} from 'micromark-util-symbol'
 /** @type {Construct} */
 export const mathFlow = {
   tokenize: tokenizeMathFenced,
-  concrete: true
+  concrete: true,
+  name: 'mathFlow'
 }
 
 /** @type {Construct} */
