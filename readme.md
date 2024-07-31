@@ -223,27 +223,27 @@ At the time of writing, the last version is:
 
 Math forms with the following BNF:
 
-```bnf
+```abnf
 ; Restriction: the number of markers in the closing sequence must be equal
 ; to the number of markers in the opening sequence.
-math_text ::= sequence_text 1*byte sequence_text
-math_flow ::= fence_open *( eol *line ) [ eol fence_close ]
+mathText ::= sequenceText 1*byte sequenceText
+mathFlow ::= fenceOpen *( eol *line ) [ eol fenceClose ]
 
 ; Restriction: not preceded or followed by the marker.
-sequence_text ::= 1*'$'
+sequenceText ::= 1*"$"
 
-fence_open ::= sequence_flow meta
+fenceOpen ::= sequenceFlow meta
 ; Restriction: the number of markers in the closing fence sequence must be
 ; equal to or greater than the number of markers in the opening fence
 ; sequence.
-fence_close ::= sequence_flow *space_or_tab
-sequence_flow ::= 2*'$'
+fenceClose ::= sequenceFlow *spaceOrTab
+sequenceFlow ::= 2*"$"
 ; Restriction: the marker cannot occur in `meta`
 meta ::= 1*line
 
 ; Character groups for informational purposes.
-byte ::= 0x00..=0xFFFF
-eol ::= '\n' | '\r' | '\r\n'
+byte ::= %x00-FFFF
+eol ::= "\n" | "\r" | "\r\n"
 line ::= byte - eol
 ```
 
