@@ -261,7 +261,7 @@ It is also possible to include just one marker:
 Include just one: $$ $ $$.
 ```
 
-Sequences are “gready”, in that they cannot be preceded or followed by more
+Sequences are “greedy”, in that they cannot be preceded or followed by more
 markers.
 To illustrate:
 
