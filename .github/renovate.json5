@@ -1,0 +1,56 @@
+{
+  $schema: 'https://docs.renovatebot.com/renovate-schema.json',
+  extends: ['config:recommended'],
+  dependencyDashboard: true,
+  timezone: 'UTC',
+  // Keep transitive dependencies current even when no parent publishes a
+  // release: run lock file maintenance daily, after the day's dependency-update
+  // PRs, and merge it automatically.
+  lockFileMaintenance: {
+    enabled: true,
+    automerge: true,
+    schedule: ['before 4am']
+  },
+  platformAutomerge: true,
+  automergeStrategy: 'rebase',
+  // Rebase whenever a PR falls behind its base branch to keep it mergeable.
+  rebaseWhen: 'behind-base-branch',
+  // Recreate PRs even when a matching PR was previously merged, so re-created
+  // branches keep automerge enabled instead of being disabled by the
+  // "merged previously" guard.
+  recreateWhen: 'always',
+  // Drop the 'controls' section from PR bodies to keep squash commits clean.
+  prBodyTemplate: '{{{header}}}{{{table}}}{{{notes}}}{{{changelogs}}}{{{footer}}}',
+  packageRules: [
+    {
+      description: 'Name dependency branches after the package and version',
+      matchManagers: ['npm', 'github-actions'],
+      branchTopic: '{{{depNameSanitized}}}-{{{newVersion}}}'
+    },
+    {
+      description: 'Automerge routine devDependency updates',
+      matchManagers: ['npm'],
+      matchDepTypes: ['devDependencies'],
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
+      automerge: true
+    },
+    {
+      description: 'Automerge routine GitHub Actions updates',
+      matchManagers: ['github-actions'],
+      matchUpdateTypes: ['minor', 'patch', 'pin', 'digest'],
+      automerge: true
+    },
+    {
+      // The branchTopic rule above also matches lock file maintenance and would
+      // render an empty topic, naming the branch "renovate" instead of
+      // "renovate/lock-file-maintenance". Rules override the
+      // lockFileMaintenance object, so restore the default topic after them; a
+      // negative priority defers maintenance behind dependency-update PRs
+      // within a run.
+      description: 'Keep the lock file maintenance branch topic',
+      matchUpdateTypes: ['lockFileMaintenance'],
+      branchTopic: 'lock-file-maintenance',
+      prPriority: -1
+    }
+  ]
+}
