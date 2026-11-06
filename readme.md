@@ -216,7 +216,7 @@ At the time of writing, the last version is:
 <!-- To do: update and copy paste the one from: https://katex.org/docs/browser -->
 
 ```html
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.16.11/dist/katex.min.css">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.19.1/dist/katex.min.css">
 ```
 
 ## Syntax
